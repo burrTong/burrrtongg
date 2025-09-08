@@ -1,20 +1,12 @@
 import React from "react";
 import "./App.css";
+import Navbar from "./Navbar";
 
 function App() {
   return (
     <div className="container">
       {/* Navbar */}
-      <nav className="navbar">
-        <div className="logo">Burtong</div>
-        <div className="nav-links">
-          <a href="#">Home</a>
-          <a href="#">Products</a>
-          <a href="#">Shopping Cart</a>
-          <a href="#">Sign in</a>
-          <button className="signup-btn">Sign Up</button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Search Bar */}
       <div className="search-container">
