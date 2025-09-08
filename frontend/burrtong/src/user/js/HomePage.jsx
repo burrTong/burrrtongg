@@ -1,13 +1,9 @@
 import React from "react";
-import "./App.css";
-import Navbar from "./Navbar";
+import "../css/App.css"; // Corrected path
 
-function App() {
+function HomePage() {
   return (
-    <div className="container">
-      {/* Navbar */}
-      <Navbar />
-
+    <>
       {/* Search Bar */}
       <div className="search-container">
         <input type="text" placeholder="search" className="search-box" />
@@ -29,8 +25,8 @@ function App() {
           <div className="product pink">NANYANG</div>
         </div>
       </section>
-    </div>
+    </>
   );
 }
 
-export default App;
+export default HomePage;

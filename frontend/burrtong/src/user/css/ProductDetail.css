@@ -1,0 +1,167 @@
+.product-detail-page {
+    padding: 0 5rem;
+}
+
+.breadcrumb {
+    padding: 2rem 0;
+}
+
+.back-arrow {
+    font-size: 2rem;
+    text-decoration: none;
+    color: #333;
+}
+
+.product-detail-container {
+  display: flex;
+  font-family: sans-serif;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.product-detail-images {
+  display: flex;
+  gap: 1rem;
+}
+
+.thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.thumbnail-image {
+    width: 106px;
+    height: 106px;
+    padding: 5px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.thumbnail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.main-image {
+    width: 450px;
+    height: 450px;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  padding-top: 1rem;
+}
+
+.product-info .brand {
+    font-size: 1rem;
+    color: #333;
+    margin: 0;
+    font-weight: 500;
+}
+
+.product-info h1 {
+  font-size: 1.8rem;
+  margin: 0.2rem 0;
+  font-weight: bold;
+}
+
+.product-info .product-id {
+    font-size: 0.9rem;
+    color: #555;
+    margin: 0;
+    margin-bottom: 1rem;
+}
+
+.product-info .price {
+  font-size: 1.7rem;
+  font-weight: 500;
+  margin: 1rem 0;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+.size-label, .quantity-label {
+    margin: 0 0 0.5rem 0;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.size-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.size-button:hover, .size-button:focus {
+  border-color: #000;
+}
+
+.quantity-selector {
+    margin-top: 1.5rem;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  width: fit-content;
+  border-radius: 8px;
+}
+
+.quantity-controls button {
+  border: none;
+  background: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.quantity-controls span {
+    padding: 0 0.5rem;
+}
+
+.add-to-cart {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 8px;
+  color: #888;
+  font-weight: bold;
+}
+
+.add-to-cart:hover {
+    background-color: #e0e0e0;
+}
