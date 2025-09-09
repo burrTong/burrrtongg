@@ -1,9 +1,16 @@
 .product-detail-page {
-    padding: 0 5rem;
+    padding: 2rem 5rem 5rem 5rem;
+    position: relative;
 }
 
 .breadcrumb {
-    padding: 2rem 0;
+    padding-bottom: 2rem;
+}
+
+.back-arrow-container {
+    position: absolute;
+    bottom: 2rem;
+    left: 5rem;
 }
 
 .back-arrow {
@@ -118,9 +125,16 @@
   background-color: white;
   cursor: pointer;
   border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.size-button:hover, .size-button:focus {
+.size-button:hover {
+  border-color: #000;
+}
+
+.size-button.selected {
+  background-color: #000;
+  color: #fff;
   border-color: #000;
 }
 

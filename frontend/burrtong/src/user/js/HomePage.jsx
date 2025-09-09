@@ -1,13 +1,10 @@
 import React from "react";
+import Navbar from "./Navbar.jsx";
 import "../css/App.css"; // Corrected path
 
 function HomePage() {
   return (
     <>
-      {/* Search Bar */}
-      <div className="search-container">
-        <input type="text" placeholder="search" className="search-box" />
-      </div>
 
       {/* Hero Section */}
       <section className="hero">

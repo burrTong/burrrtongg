@@ -1,67 +1,133 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { productDetails } from './data.js'; // Import data
-import '../css/ProductDetail.css'; // Corrected path
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getProductById } from '../api/productApi.js';
+import '../css/ProductDetail.css';
 
-const ProductDetail = () => {
+const ProductDetail = ({ cart, setCart }) => {
   const { productId } = useParams();
-  const product = productDetails[productId] || Object.values(productDetails)[0]; // Fallback to the first product if not found
+  const navigate = useNavigate();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState(null);
 
-  // Render nothing or a loading state if no product data is available
-  if (!product) {
-    return <div>Product not found!</div>;
-  }
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const fetchedProduct = await getProductById(productId);
+        setProduct(fetchedProduct);
+      } catch (error) {
+        console.error(`Failed to fetch product with id ${productId}:`, error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [productId]);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handleIncrement = () => {
+    setQuantity(prev => prev + 1);
+  };
+
+  const handleDecrement = () => {
+    setQuantity(prev => (prev > 1 ? prev - 1 : 1));
+  };
+
+  const handleSizeSelect = (size) => {
+    setSelectedSize(size);
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    const existingProduct = cart.find(item => item.id === product.id);
+    if (existingProduct) {
+      setCart(
+        cart.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+      );
+    } else {
+      const cartItem = { ...product, quantity, size: selectedSize };
+      setCart([...cart, cartItem]);
+    }
+    navigate('/home/cart');
+  };
+
+  const SIZES = ["39 EU", "39.5 EU", "40 EU", "41.5 EU", "42 EU", "42.5 EU", "43 EU"];
+
+  if (loading) return <div>Loading...</div>;
+  if (!product) return <div>Product not found!</div>;
 
   return (
-    <>
-      {/* The duplicate Navbar is removed */}
-      <div className="product-detail-page">
-        <div className="breadcrumb">
-            <a href="#" className="back-arrow">&larr;</a>
+    <div className="product-detail-page">
+      <div className="breadcrumb"></div>
+
+      <div className="product-detail-container">
+        <div className="product-detail-images">
+          <div className="thumbnails">
+            {product.thumbnails.map((thumb, index) => (
+              <div key={index} className="thumbnail-image">
+                <img src={thumb} alt={`thumbnail ${index + 1}`} />
+              </div>
+            ))}
+          </div>
+          <div className="main-image">
+            <img src={product.mainImage} alt="main product" />
+          </div>
         </div>
-        <div className="product-detail-container">
-          <div className="product-detail-images">
-            <div className="thumbnails">
-              {product.thumbnails.map((thumb, index) => (
-                <div key={index} className="thumbnail-image">
-                    <img  src={thumb} alt={`thumbnail ${index + 1}`} />
-                </div>
+
+        <div className="product-info">
+          <p className="brand">{product.brand}</p>
+          <h1>{product.name}</h1>
+          <p className="product-id">Product id : {product.productId}</p>
+          <p className="price">{product.getFormattedPrice()}</p>
+
+          <div className="size-selection">
+            <p className="size-label">Size :</p>
+            <div className="sizes">
+              {SIZES.map(size => (
+                <button
+                  key={size}
+                  className={`size-button ${selectedSize === size ? 'selected' : ''}`}
+                  onClick={() => handleSizeSelect(size)}
+                >
+                  {size}
+                </button>
               ))}
             </div>
-            <div className="main-image">
-              <img src={product.mainImage} alt="main product" />
+          </div>
+
+          <div className="quantity-selector">
+            <p className="quantity-label">จำนวน</p>
+            <div className="quantity-controls">
+              <button onClick={handleDecrement}>-</button>
+              <span>{quantity}</span>
+              <button onClick={handleIncrement}>+</button>
             </div>
           </div>
-          <div className="product-info">
-            <p className="brand">{product.brand}</p>
-            <h1>{product.name}</h1>
-            <p className="product-id">Product id : {product.productId}</p>
-            <p className="price">{product.price}</p>
-            <div className="size-selection">
-              <p className="size-label">Size :</p>
-              <div className="sizes">
-                <button className="size-button">39 EU</button>
-                <button className="size-button">39.5 EU</button>
-                <button className="size-button">40 EU</button>
-                <button className="size-button">41.5 EU</button>
-                <button className="size-button">42 EU</button>
-                <button className="size-button">42.5 EU</button>
-                <button className="size-button">43 EU</button>
-              </div>
-            </div>
-            <div className="quantity-selector">
-              <p className='quantity-label'>จํานวน</p>
-              <div className="quantity-controls">
-                <button>-</button>
-                <span>1</span>
-                <button>+</button>
-              </div>
-            </div>
-            <button className="add-to-cart">เพิ่มใส่ตะกร้า</button>
-          </div>
+
+          <button className="add-to-cart" onClick={handleAddToCart}>
+            เพิ่มใส่ตะกร้า
+          </button>
         </div>
       </div>
-    </>
+
+      <div className="back-arrow-container">
+        <a
+          href="#"
+          onClick={(e) => { e.preventDefault(); handleBack(); }}
+          className="back-arrow"
+        >
+          &larr;
+        </a>
+      </div>
+    </div>
   );
 };
 
