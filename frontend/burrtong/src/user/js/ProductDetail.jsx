@@ -67,7 +67,15 @@ const ProductDetail = ({ cart, setCart }) => {
   return (
     <div className="product-detail-page">
       <div className="breadcrumb"></div>
-
+      <div className="back-arrow-container">
+        <a
+          href="#"
+          onClick={(e) => { e.preventDefault(); handleBack(); }}
+          className="back-arrow"
+        >
+          &larr;
+        </a>
+      </div>
       <div className="product-detail-container">
         <div className="product-detail-images">
           <div className="thumbnails">
@@ -116,16 +124,6 @@ const ProductDetail = ({ cart, setCart }) => {
             เพิ่มใส่ตะกร้า
           </button>
         </div>
-      </div>
-
-      <div className="back-arrow-container">
-        <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); handleBack(); }}
-          className="back-arrow"
-        >
-          &larr;
-        </a>
       </div>
     </div>
   );

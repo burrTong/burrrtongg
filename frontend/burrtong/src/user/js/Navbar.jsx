@@ -3,23 +3,35 @@ import "../css/Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef(null);
+  const [open, setOpen] = useState(false);              // desktop avatar dropdown
+  const [mobileOpen, setMobileOpen] = useState(false);  // mobile menu
+  const avatarRef = useRef(null);
+  const mobileWrapRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpen(false);
-      }
+      if (avatarRef.current && !avatarRef.current.contains(e.target)) setOpen(false);
+      if (mobileWrapRef.current && !mobileWrapRef.current.contains(e.target)) setMobileOpen(false);
     };
+    const handleEsc = (e) => {
+      if (e.key === "Escape") { setOpen(false); setMobileOpen(false); }
+    };
+    const handleResize = () => { if (window.innerWidth > 960) setMobileOpen(false); };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const handleLogout = () => {
     // TODO: เคลียร์ token/session ถ้ามี
-    navigate("/"); // กลับไปหน้า Login
+    navigate("/"); // กลับหน้า Login
   };
 
   return (
@@ -27,7 +39,7 @@ function Navbar() {
       {/* Logo */}
       <div className="logo">Burtong</div>
 
-      {/* Search Bar */}
+      {/* Search (ซ่อนอัตโนมัติบนมือถือด้วย CSS; ไม่รวมในเมนู) */}
       <div className="search-container">
         <button className="search-btn" aria-label="Search">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
@@ -41,31 +53,61 @@ function Navbar() {
         <input type="text" placeholder="search" className="search-box" />
       </div>
 
-      {/* Navigation Links */}
+      {/* Desktop: Links + Avatar */}
       <div className="nav-links">
         <Link to="/home">Home</Link>
         <Link to="/home/products">Products</Link>
         <Link to="/home/cart">Shopping Cart</Link>
       </div>
 
-      {/* Avatar */}
-      <div className="avatar-wrapper" ref={menuRef}>
+      <div className="avatar-wrapper" ref={avatarRef}>
         <div
           className="avatar"
           role="button"
           tabIndex={0}
-          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          onClick={() => setOpen(v => !v)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") setOpen((v) => !v);
+            if (e.key === "Enter" || e.key === " ") setOpen(v => !v);
           }}
         >
           <span>B</span>
         </div>
 
         {open && (
-          <div className="dropdown" role="menu">
-            <div className="dropdown-item dropdown-label">Acc</div>
+          <div className="dropdown" role="menu" aria-label="Account menu">
+            <div className="dropdown-item dropdown-label">Account</div>
             <button className="dropdown-item danger" onClick={handleLogout}>
+              Log out
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile: Hamburger + เมนูรวม (เฉพาะลิงก์และบัญชี) */}
+      <div className="mobile-menu-wrap" ref={mobileWrapRef}>
+        <button
+          className="hamburger"
+          aria-label="Open menu"
+          aria-haspopup="menu"
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen(v => !v)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z" fill="currentColor" />
+          </svg>
+        </button>
+
+        {mobileOpen && (
+          <div className="mobile-menu" role="menu" aria-label="Main menu">
+            <div className="section-title">Navigate</div>
+            <Link to="/home" onClick={() => setMobileOpen(false)}>Home</Link>
+            <Link to="/home/products" onClick={() => setMobileOpen(false)}>Products</Link>
+            <Link to="/home/cart" onClick={() => setMobileOpen(false)}>Shopping Cart</Link>
+
+            <div className="section-title">Account</div>
+            <button className="danger" onClick={() => { setMobileOpen(false); handleLogout(); }}>
               Log out
             </button>
           </div>
