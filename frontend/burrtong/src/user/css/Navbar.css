@@ -5,7 +5,13 @@
   padding: 16px 32px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   gap: 20px;
+
+  position: sticky;   /* หรือ fixed ก็ได้ */
+  top: 0;
+  background: #fff;   /* กันพื้นหลังโปร่งใสเวลาเลื่อน */
+  z-index: 100;
 }
+
 
 .logo {
   font-size: 24px;

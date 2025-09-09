@@ -1,25 +1,58 @@
-/* ===== Page Sections (ไม่ยุ่งกับ Navbar) ===== */
+/* =========================
+   HERO (Slider Version)
+   ========================= */
 
-/* Hero Section */
+/* ระยะห่างจาก Navbar */
 .hero {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  padding: 24px 0;          /* ใช้ padding ภายใน container */
+  margin-top: 104px !important;   /* ปรับได้ 88–120px ตามชอบ */
+  margin-bottom: 32px;
+  padding: 0 24px;                 /* กันชิดขอบซ้าย/ขวา */
+  box-sizing: border-box;
 }
 
-.box {
-  height: 240px;
-  border-radius: 8px;
+/* โครงสร้าง slick ให้จัดกึ่งกลางสวย ๆ */
+.hero .slick-track {
+  display: flex;
+  align-items: center;
 }
 
-.red   { background-color: #f87171; }
-.blue  { background-color: #60a5fa; }
-.green { background-color: #34d399; }
+.hero .slick-slide {
+  display: flex !important;
+  justify-content: center;
+}
 
-/* Hot Products */
+/* รูปคอลลอสซอล (แต่ละสไลด์) */
+.hero .colossal-image {
+  display: block;
+  width: 100%;
+  max-width: 360px;                /* ขนาดรูปต่อสไลด์ (320–420 ได้) */
+  height: 180px;                   /* ความสูงคงที่ให้ไม่ยุบ */
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+
+/* จุดเลื่อน (ไม่ให้ลอยกลางจอ) */
+.hero .slick-dots {
+  position: relative;
+  bottom: auto;
+  margin-top: 10px;
+}
+
+/* ปุ่มลูกศร (ถ้าเปิดไว้) ให้ชิดขอบภาพพอดี */
+.hero .slick-prev,
+.hero .slick-next {
+  z-index: 1;
+}
+.hero .slick-prev { left: 8px; }
+.hero .slick-next { right: 8px; }
+
+/* =========================
+   Hot Products (ของเดิม)
+   ========================= */
+/* ------- Hot Products (ใหม่) ------- */
 .hot-products {
-  padding: 24px 0;          /* ใช้ padding ภายใน container */
+  padding: 24px 0;
 }
 
 .hot-products h2 {
@@ -27,33 +60,92 @@
   margin-bottom: 16px;
 }
 
-.product-grid {
+.hot-products-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
-.product {
-  height: 200px;
-  border-radius: 8px;
+/* การ์ดสินค้าแบบย่อสำหรับโฮม */
+.hot-product-card {
   display: flex;
-  align-items: flex-end;
-  padding: 16px;
-  font-weight: 700;
-  font-size: 16px;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
-.purple { background-color: #a78bfa; color: #fff; }
-.yellow { background-color: #fde68a; color: #111; }
-.pink   { background-color: #f9a8d4; color: #fff; }
+.hot-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+}
 
-/* ===== Responsive ===== */
+/* รูปสินค้าในโฮมให้คงสัดส่วนและไม่ล้น */
+.hot-product-image {
+  aspect-ratio: 4 / 3;
+  background: #f7f7f8;
+  display: grid;
+  place-items: center;
+}
+
+.hot-product-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.hot-product-info {
+  padding: 12px 14px;
+}
+
+.hot-product-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.hot-product-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.hot-product-price {
+  font-weight: 700;
+}
+
+.hot-product-status {
+  color: #ff4d4f; /* เหมือน “Almost Sold Out” ในหน้า products */
+}
+
+/* (ถ้ายังมีคลาส .product .purple/.yellow/.pink เดิมอยู่ จะไม่ใช้แล้ว แต่ปล่อยไว้ได้) */
+
+/* =========================
+   Responsive
+   ========================= */
+/* อย่ากำหนด grid ให้ .hero เมื่อใช้ Slider */
+@media (max-width: 640px) {
+  .hero .colossal-image {
+    max-width: 100%;
+    height: 160px;                 /* ลดสูงลงบนจอเล็ก */
+  }
+}
 @media (max-width: 1024px) {
-  .hero { grid-template-columns: 1fr 1fr; }
-  .product-grid { grid-template-columns: 1fr 1fr; }
+  .hot-products { padding: 20px 0; }
+  .hot-products-grid { gap: 16px; }
 }
 
 @media (max-width: 640px) {
-  .hero { grid-template-columns: 1fr; }
-  .product-grid { grid-template-columns: 1fr; }
+  .hot-products h2 { font-size: 20px; }
+  .hot-products-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  .hot-product-info { padding: 10px 12px; }
+  .hot-product-info h3 { font-size: 15px; }
 }
