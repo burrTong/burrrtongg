@@ -1,16 +1,20 @@
 class Product {
   constructor(data) {
     this.id = data.id;
-    this.brand = data.brand;
     this.name = data.name;
-    this.productId = data.productId;
     this.price = data.price;
-    this.status = data.status;
-    this.mainImage = data.mainImage;
-    this.thumbnails = data.thumbnails;
+    this.mainImage = data.imageUrl; // Map imageUrl to mainImage
+    this.status = data.stock > 0 ? 'In Stock' : 'Out of Stock'; // Derive status from stock
+    this.brand = data.brand || null;
+    this.productId = data.id; // Use id for productId
+    this.thumbnails = data.thumbnails || [];
+    this.description = data.description;
   }
 
   getFormattedPrice(currency = 'THB') {
+    if (this.price === null || this.price === undefined) {
+      return 'Price not available';
+    }
     return `${this.price.toLocaleString()} ${currency}`;
   }
 }
