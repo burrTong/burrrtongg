@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../css/Cart.css';
 import { Link } from 'react-router-dom';
 import Product from '../models/product.js';
+import { createOrder } from '../api/orderApi.js';
 
 const Cart = ({ cart, setCart }) => {
+  const [checkoutStatus, setCheckoutStatus] = useState('idle'); // idle, success, error
+
   const getTotal = () => {
     return cart.reduce((total, item) => {
       const price = item.price || 0;
@@ -21,6 +24,34 @@ const Cart = ({ cart, setCart }) => {
           item.id === productId ? { ...item, quantity: newQuantity } : item
         )
       );
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (cart.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    const orderRequest = {
+      customerId: 1, // Hardcoded customer ID for now
+      items: cart.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+      })),
+    };
+
+    try {
+      await createOrder(orderRequest);
+      setCheckoutStatus('success');
+      setTimeout(() => {
+        setCart([]);
+        setCheckoutStatus('idle');
+      }, 3000); // Reset after 3 seconds
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      setCheckoutStatus('error');
+      alert(`Failed to create order: ${error.message}`);
     }
   };
 
@@ -66,7 +97,13 @@ const Cart = ({ cart, setCart }) => {
           <div className="summary-total">
             <span>{getTotal().toLocaleString()}.-</span>
           </div>
-          <button className="checkout-button">ชำระเงิน</button>
+          <button 
+            className={`checkout-button ${checkoutStatus === 'success' ? 'success' : ''}`}
+            onClick={handleCheckout} 
+            disabled={checkoutStatus === 'success'}
+          >
+            {checkoutStatus === 'success' ? 'Order Placed!' : 'ชำระเงิน'}
+          </button>
         </div>
       </div>
       <div className="back-link">

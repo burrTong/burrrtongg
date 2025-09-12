@@ -117,6 +117,13 @@
   font-size: 1rem;
   cursor: pointer;
   margin-top: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.checkout-button.success {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  border-color: #4CAF50;
 }
 
 /* ====== Back link ====== */

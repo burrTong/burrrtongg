@@ -30,7 +30,9 @@ const ProductDetail = ({ cart, setCart }) => {
   };
 
   const handleIncrement = () => {
-    setQuantity(prev => prev + 1);
+    if (product && quantity < product.stock) {
+      setQuantity(prev => prev + 1);
+    }
   };
 
   const handleDecrement = () => {
@@ -43,6 +45,12 @@ const ProductDetail = ({ cart, setCart }) => {
 
   const handleAddToCart = () => {
     if (!product) return;
+    if (product.stock === 0) return; // Cannot add out of stock items
+    if (quantity > product.stock) {
+      alert('Not enough stock!');
+      return;
+    }
+
     const existingProduct = cart.find(item => item.id === product.id);
     if (existingProduct) {
       setCart(
@@ -95,6 +103,9 @@ const ProductDetail = ({ cart, setCart }) => {
           <h1>{product.name}</h1>
           <p className="product-id">Product id : {product.productId}</p>
           <p className="price">{product.getFormattedPrice()}</p>
+          <p className={`stock-status ${product.stock === 0 ? 'out-of-stock' : ''}`}>
+            {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
+          </p>
 
           <div className="size-selection">
             <p className="size-label">Size :</p>
@@ -114,14 +125,14 @@ const ProductDetail = ({ cart, setCart }) => {
           <div className="quantity-selector">
             <p className="quantity-label">จำนวน</p>
             <div className="quantity-controls">
-              <button onClick={handleDecrement}>-</button>
+              <button onClick={handleDecrement} disabled={product.stock === 0}>-</button>
               <span>{quantity}</span>
-              <button onClick={handleIncrement}>+</button>
+              <button onClick={handleIncrement} disabled={product.stock === 0}>+</button>
             </div>
           </div>
 
-          <button className="add-to-cart" onClick={handleAddToCart}>
-            เพิ่มใส่ตะกร้า
+          <button className="add-to-cart" onClick={handleAddToCart} disabled={product.stock === 0}>
+            {product.stock > 0 ? 'เพิ่มใส่ตะกร้า' : 'สินค้าหมด'}
           </button>
         </div>
       </div>

@@ -36,7 +36,9 @@ const Products = () => {
                 <h3>{product.name}</h3>
                 <div className="product-footer">
                   <p className="product-price">{product.getFormattedPrice()}</p>
-                  <p className="product-status">{product.status}</p>
+                  <p className={`product-status ${product.stock === 0 ? 'out-of-stock' : ''}`}>
+                    {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
+                  </p>
                 </div>
               </div>
             </Link>

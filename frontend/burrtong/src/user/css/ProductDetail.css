@@ -123,6 +123,16 @@
   padding-top: 1rem;
 }
 
+.stock-status {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.stock-status.out-of-stock {
+  color: #D32F2F;
+}
+
 .size-label, .quantity-label {
   margin: 0 0 .5rem 0;
   color: #555;
@@ -186,6 +196,13 @@
   font-weight: 700;
 }
 .add-to-cart:hover { background-color: #e9e9e9; }
+
+.add-to-cart:disabled {
+  background-color: #f5f5f5;
+  color: #aaa;
+  cursor: not-allowed;
+  border-color: #e0e0e0;
+}
 
 /* ====== Tablet (<= 1100px) ====== */
 @media (max-width: 1100px) {

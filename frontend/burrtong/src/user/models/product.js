@@ -3,6 +3,7 @@ class Product {
     this.id = data.id;
     this.name = data.name;
     this.price = data.price;
+    this.stock = data.stock;
     this.mainImage = data.imageUrl; // Map imageUrl to mainImage
     this.status = data.stock > 0 ? 'In Stock' : 'Out of Stock'; // Derive status from stock
     this.brand = data.brand || null;
