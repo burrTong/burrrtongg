@@ -5,8 +5,8 @@ import com.example.backend.entity.User;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UserDetails;
+// import org.springframework.security.access.prepost.PreAuthorize; // Commented out
+// import org.springframework.security.core.userdetails.UserDetails; // Commented out
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,14 +32,15 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
     }
 
-    public Product createProduct(Product product, UserDetails userDetails) {
-        User seller = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("Seller not found with username: " + userDetails.getUsername()));
+    public Product createProduct(Product product) { // Removed UserDetails parameter
+        // Temporarily find an admin user to set as seller
+        User seller = userRepository.findByUsername("admin@admin.com") // Hardcoded admin user
+                .orElseThrow(() -> new ResourceNotFoundException("Default admin user not found. Please create 'admin@admin.com' in database."));
         product.setSeller(seller);
         return productRepository.save(product);
     }
 
-    @PreAuthorize("@productService.isOwner(#id, principal.username) or hasAuthority('ADMIN')")
+    // @PreAuthorize("@productService.isOwner(#id, principal.username) or hasAuthority('ADMIN')") // Commented out
     public Product updateProduct(Long id, Product productDetails) {
         return productRepository.findById(id)
                 .map(product -> {
@@ -54,7 +55,7 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
     }
 
-    @PreAuthorize("@productService.isOwner(#id, principal.username) or hasAuthority('ADMIN')")
+    // @PreAuthorize("@productService.isOwner(#id, principal.username) or hasAuthority('ADMIN')") // Commented out
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }

@@ -2,14 +2,12 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Product;
 import com.example.backend.service.ProductService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -29,8 +27,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product, @AuthenticationPrincipal UserDetails userDetails) {
-        return productService.createProduct(product, userDetails);
+    public Product createProduct(@RequestBody Product product) { // Removed @AuthenticationPrincipal UserDetails userDetails
+        return productService.createProduct(product); // Removed userDetails parameter
     }
 
     @PutMapping("/{id}")

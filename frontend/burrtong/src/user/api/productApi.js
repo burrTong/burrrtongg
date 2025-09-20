@@ -17,3 +17,22 @@ export const getProductById = async (id) => {
   const data = await response.json();
   return new Product(data);
 };
+
+export const createProduct = async (productData) => {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch('/api/products', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(productData),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new Error(errorBody.message || 'Failed to create product');
+  }
+
+  return await response.json();
+};
