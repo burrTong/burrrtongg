@@ -83,7 +83,7 @@ services:
               echo "Waiting for frontend service (port 18081)..."
               ATTEMPTS=0
               MAX_ATTEMPTS=24
-              until curl -sf http://localhost:18081 > /dev/null; do
+              until curl -sf http://127.0.0.1:18081 > /dev/null; do
                 if [ ${ATTEMPTS} -ge ${MAX_ATTEMPTS} ]; then
                   echo "Frontend service did not start in time. Aborting."
                   exit 1
@@ -96,7 +96,7 @@ services:
 
               echo "Waiting for backend service (port 18090)..."
               ATTEMPTS=0
-              until nc -z localhost 18090; do
+              until nc -z 127.0.0.1 18090; do
                 if [ ${ATTEMPTS} -ge ${MAX_ATTEMPTS} ]; then
                   echo "Backend service did not start in time. Aborting."
                   exit 1
@@ -115,7 +115,7 @@ services:
         steps {
             dir('frontend/burrtong') {
                 sh '''
-                  npm run cy:run -- --config baseUrl=http://localhost:18081 --env backendUrl=http://localhost:18090
+                  npm run cy:run -- --config baseUrl=http://127.0.0.1:18081 --env backendUrl=http://127.0.0.1:18090
                 '''
             }
         }
