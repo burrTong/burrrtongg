@@ -80,7 +80,17 @@ services:
 
             sh """
               echo "Waiting for services to start..."
-              timeout 120 sh -c 'until curl -sf http://localhost:18081 > /dev/null; do sleep 5; done'
+              ATTEMPTS=0
+              MAX_ATTEMPTS=24
+              until curl -sf http://localhost:18081 > /dev/null; do
+                if [ ${ATTEMPTS} -ge ${MAX_ATTEMPTS} ]; then
+                  echo "Service did not start in time. Aborting."
+                  exit 1
+                fi
+                ATTEMPTS=$((ATTEMPTS + 1))
+                echo "Waiting... (${ATTEMPTS}/${MAX_ATTEMPTS})"
+                sleep 5
+              done
               echo "Services are running."
             """
         }
