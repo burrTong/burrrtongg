@@ -78,7 +78,7 @@ services:
 
             sh "docker-compose -f docker-compose.e2e.yml up -d --build"
 
-            sh """
+            sh '''
               echo "Waiting for services to start..."
               ATTEMPTS=0
               MAX_ATTEMPTS=24
@@ -92,7 +92,7 @@ services:
                 sleep 5
               done
               echo "Services are running."
-            """
+            '''
         }
     }
 
