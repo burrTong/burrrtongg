@@ -130,9 +130,8 @@ services:
       steps {
         dir('frontend/burrtong') {
           sh '''
-            npm run cy:run -- --config baseUrl=http://127.0.0.1:18081 --env 
-            backendUrl=http://127.0.0.1:18090
-          '''
+                  npm run cy:run -- --config baseUrl=http://127.0.0.1:18081 --env backendUrl=http://127.0.0.1:18090
+                '''
         }
       }
       post {
