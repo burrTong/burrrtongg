@@ -1,7 +1,9 @@
 import Product from '../models/product.js';
 
+const API_BASE_URL = 'http://localhost:8080';
+
 export const getAllProducts = async () => {
-  const response = await fetch('/api/products');
+  const response = await fetch(`${API_BASE_URL}/api/products`);
   if (!response.ok) {
     throw new Error('Failed to fetch products');
   }
@@ -10,7 +12,7 @@ export const getAllProducts = async () => {
 };
 
 export const getProductById = async (id) => {
-  const response = await fetch(`/api/products/${id}`);
+  const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch product with id ${id}`);
   }
@@ -20,7 +22,7 @@ export const getProductById = async (id) => {
 
 export const createProduct = async (productData) => {
   const token = localStorage.getItem('authToken');
-  const response = await fetch('/api/products', {
+  const response = await fetch(`${API_BASE_URL}/api/products`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

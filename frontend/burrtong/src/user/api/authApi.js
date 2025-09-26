@@ -1,5 +1,7 @@
+const API_BASE_URL = 'http://localhost:8080';
+
 export const login = async (email, password) => {
-  const response = await fetch('/api/auth/login', {
+  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -33,7 +35,7 @@ export const login = async (email, password) => {
 
 export const getAllOrders = async () => {
   const token = localStorage.getItem('authToken');
-  const response = await fetch('/api/orders', {
+  const response = await fetch(`${API_BASE_URL}/api/orders`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },

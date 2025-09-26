@@ -1,5 +1,7 @@
+const API_BASE_URL = 'http://localhost:8080';
+
 export const createOrder = async (orderRequest) => {
-  const response = await fetch('/api/orders', {
+  const response = await fetch(`${API_BASE_URL}/api/orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -17,7 +19,7 @@ export const createOrder = async (orderRequest) => {
 
 export const getAllOrders = async () => {
   const token = localStorage.getItem('authToken');
-  const response = await fetch('/api/orders', {
+  const response = await fetch(`${API_BASE_URL}/api/orders`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -46,7 +48,7 @@ export const getAllOrders = async () => {
 
 export const updateOrderStatus = async (orderId, status) => {
   const token = localStorage.getItem('authToken');
-  const response = await fetch(`/api/orders/${orderId}/status`, {
+  const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
