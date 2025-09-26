@@ -66,12 +66,11 @@ version: "3.8"
 services:
   backend:
     build: ./backend
-    ports: ["18090:8080"]
   frontend:
     build:
       context: ./frontend/burrtong
       dockerfile: Dockerfile
-    ports: ["8081:80"]
+    ports: ["18081:80"]
     depends_on:
       - backend
 '''
@@ -81,7 +80,7 @@ services:
 
             sh """
               echo "Waiting for services to start..."
-              timeout 120 sh -c 'until curl -sf http://localhost:8081 > /dev/null; do sleep 5; done'
+              timeout 120 sh -c 'until curl -sf http://localhost:18081 > /dev/null; do sleep 5; done'
               echo "Services are running."
             """
         }
@@ -92,7 +91,7 @@ services:
         steps {
             dir('frontend/burrtong') {
                 sh '''
-                  npm run cy:run -- --config baseUrl=http://localhost:8081
+                  npm run cy:run -- --config baseUrl=http://localhost:18081
                 '''
             }
         }
