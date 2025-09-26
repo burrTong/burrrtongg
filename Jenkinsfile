@@ -66,12 +66,12 @@ version: "3.8"
 services:
   backend:
     build: ./backend
-    ports: ["8080:8080"]
+    ports: ["8090:8080"]
   frontend:
     build:
       context: ./frontend/burrtong
       dockerfile: Dockerfile
-    ports: ["80:80"]
+    ports: ["8081:80"]
     depends_on:
       - backend
 '''
@@ -81,7 +81,7 @@ services:
 
             sh """
               echo "Waiting for services to start..."
-              timeout 120 sh -c 'until curl -sf http://localhost > /dev/null; do sleep 5; done'
+              timeout 120 sh -c 'until curl -sf http://localhost:8081 > /dev/null; do sleep 5; done'
               echo "Services are running."
             """
         }
@@ -92,9 +92,7 @@ services:
         steps {
             dir('frontend/burrtong') {
                 sh '''
-                  # The baseUrl for the test will be http://localhost (the frontend service)
-                  # We pass this as a config to cypress run
-                  npm run cy:run -- --config baseUrl=http://localhost
+                  npm run cy:run -- --config baseUrl=http://localhost:8081
                 '''
             }
         }
