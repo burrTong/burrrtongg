@@ -23,12 +23,18 @@ describe('E2E Seller flows', () => {
   const email = 'seller@example.com';
   const password = 'password123';
 
-  it('US-S01: Register / Login seller', () => {
-    cy.visit('/seller/login');
-    cy.get('input[name="email"]').type(email);
-    cy.get('input[name="password"]').type(password);
-    cy.get('button[type="submit"]').click();
-    cy.url().should('include', '/seller/dashboard');
+  it('US-S01: Seller can sign up', () => {
+    cy.intercept('POST', '/api/auth/signup', {
+      statusCode: 200,
+      body: { message: 'Signup successful' },
+    }).as('sellerSignupRequest');
+
+    cy.visit('/signup');
+    cy.get('[data-test="signup-username"]').type('newSeller@example.com').trigger('change');
+    cy.get('[data-test="signup-password"]').type('password123').trigger('change');
+    cy.get('[data-test="signup-submit"]').click();
+    cy.wait('@sellerSignupRequest');
+    cy.url().should('include', '/login');
   });
 
   it('US-S02: Add/Edit/Delete product', () => {
