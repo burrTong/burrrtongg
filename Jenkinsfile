@@ -2,7 +2,7 @@ pipeline {
   agent any
   options { timestamps() }
   parameters {
-    booleanParam(name: 'RUN_E2E', defaultValue: false, description: 'รัน E2E ตอนนี้หรือไม่')
+    booleanParam(name: 'RUN_E2E', defaultValue: false, description: 'รัน E2E ตอนนี้หรื)ไม่')
   }
   environment {
     PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
@@ -10,9 +10,7 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
-      steps { checkout scm }
-    }
+    stage('Checkout') { steps { checkout scm } }
 
     stage('Build (parallel)') {
       parallel {
@@ -35,9 +33,7 @@ pipeline {
               }
             }
             stage('Build') {
-              steps {
-                dir('frontend/burrtong') { sh 'npm run build' }
-              }
+              steps { dir('frontend/burrtong') { sh 'npm run build' } }
             }
           }
         }
@@ -102,16 +98,16 @@ services:
 
           echo "Waiting for backend service (port 18090)..."
           ATTEMPTS=0
-          until nc -z 127.0.0.1 18090; do
+          until curl -sf http://127.0.0.1:18090/actuator/health | grep UP; do
             if [ ${ATTEMPTS} -ge ${MAX_ATTEMPTS} ]; then
-              echo "Backend service did not start in time. Aborting."
+              echo "Backend service did not start or is unhealthy. Aborting."
               exit 1
             fi
             ATTEMPTS=$((ATTEMPTS + 1))
-            echo "Waiting for backend... (${ATTEMPTS}/${MAX_ATTEMPTS})"
+            echo "Waiting for backend health... (${ATTEMPTS}/${MAX_ATTEMPTS})"
             sleep 5
           done
-          echo "Backend service is running."
+          echo "Backend service is healthy and running."
         '''
       }
     }
@@ -120,7 +116,10 @@ services:
       when { expression { params.RUN_E2E } }
       steps {
         dir('frontend/burrtong') {
-          sh 'npm run cy:run -- --config baseUrl=http://127.0.0.1:18081 --env backendUrl=http://127.0.0.1:18090'
+          sh '''
+            npm run cy:run -- --config baseUrl=http://127.0.0.1:18081 --env 
+            backendUrl=http://127.0.0.1:18090
+          '''
         }
       }
       post {
