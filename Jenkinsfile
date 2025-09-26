@@ -66,7 +66,7 @@ version: "3.8"
 services:
   backend:
     build: ./backend
-    ports: ["8090:8080"]
+    ports: ["18090:8080"]
   frontend:
     build:
       context: ./frontend/burrtong
