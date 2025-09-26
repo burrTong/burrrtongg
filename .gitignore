@@ -1,1 +1,10 @@
+# Dependencies
+/node_modules
+/frontend/burrtong/node_modules
+
+# E2E test reports and modules
+/tests/e2e/node_modules/
+/tests/e2e/report/
+
+# Environment variables
 .env
