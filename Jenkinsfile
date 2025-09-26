@@ -42,7 +42,6 @@ pipeline {
           steps {
             dir('backend') {
               sh 'chmod +x ./gradlew'
-              // ข้าม tests ชั่วคราวเพื่อให้ pipeline ผ่าน
               sh './gradlew --no-daemon assemble -x test --info --stacktrace'
             }
           }
@@ -52,64 +51,66 @@ pipeline {
 
     stage('Archive') {
       steps {
-        archiveArtifacts artifacts: 'frontend/burrtong/dist/**, frontend/burrtong/build/**',
-                         allowEmptyArchive: true, fingerprint: true
-        archiveArtifacts artifacts: 'backend/build/libs/*.jar',
-                         allowEmptyArchive: true, fingerprint: true
+        archiveArtifacts artifacts: 'frontend/burrtong/dist/**', allowEmptyArchive: true, fingerprint: true
+        archiveArtifacts artifacts: 'backend/build/libs/*.jar', allowEmptyArchive: true, fingerprint: true
       }
     }
 
-    stage('Spin up for E2E') {
-      when { expression { params.RUN_E2E && fileExists('tests/e2e/package.json') } }
-      steps {
-        sh """
-          cat > docker-compose.e2e.yml <<'YAML'
-          version: "3.8"
-          services:
-            backend:
-              image: backend:local-test
-              build:
-                context: .
-                dockerfile: backend/Dockerfile
-              ports: ["8081:8080"]
-            frontend:
-              image: frontend:local-test
-              build:
-                context: .
-                dockerfile: frontend/burrtong/Dockerfile
-              ports: ["4173:80"]
-              depends_on: [backend]
-          YAML
-          docker compose -f docker-compose.e2e.yml up -d
-          timeout 120 sh -c 'until curl -sf http://localhost:4173 >/dev/null; do sleep 2; done'
-        """
-      }
+    stage('E2E Setup: Run Application') {
+        when { expression { params.RUN_E2E } }
+        steps {
+            sh """
+              # Create a docker-compose file for the E2E environment
+              cat > docker-compose.e2e.yml <<'YAML'
+              version: "3.8"
+              services:
+                backend:
+                  build: ./backend
+                  ports: ["8080:8080"]
+                frontend:
+                  build:
+                    context: ./frontend/burrtong
+                    dockerfile: Dockerfile
+                  ports: ["80:80"]
+                  depends_on:
+                    - backend
+              YAML
+
+              # Build and run the services in the background
+              docker-compose -f docker-compose.e2e.yml up -d --build
+
+              # Wait for the frontend to be accessible
+              echo "Waiting for services to start..."
+              timeout 120 sh -c 'until curl -sf http://localhost > /dev/null; do sleep 5; done'
+              echo "Services are running."
+            """
+        }
     }
 
-    stage('E2E (Playwright)') {
-      when { expression { params.RUN_E2E && fileExists('tests/e2e/package.json') } }
-      steps {
-        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-          dir('tests/e2e') {
-            sh '''
-              npm ci
-              npx playwright install
-              BASE_URL=http://localhost:4173 npx playwright test
-            '''
-          }
+    stage('E2E Test: Cypress') {
+        when { expression { params.RUN_E2E } }
+        steps {
+            dir('frontend/burrtong') {
+                sh '''
+                  # The baseUrl for the test will be http://localhost (the frontend service)
+                  # We pass this as a config to cypress run
+                  npm run cy:run -- --config baseUrl=http://localhost
+                '''
+            }
         }
-      }
-      post {
-        always {
-          archiveArtifacts artifacts: 'tests/e2e/report/**', allowEmptyArchive: true
+        post {
+            always {
+                archiveArtifacts artifacts: 'frontend/burrtong/cypress/reports/**', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'frontend/burrtong/cypress/videos/**', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'frontend/burrtong/cypress/screenshots/**', allowEmptyArchive: true
+            }
         }
-      }
     }
   }
 
   post {
     always {
-      sh 'docker compose -f docker-compose.e2e.yml down || true'
+      sh 'docker-compose -f docker-compose.e2e.yml down || true'
     }
   }
 }
