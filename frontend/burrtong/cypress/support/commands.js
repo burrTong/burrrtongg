@@ -18,7 +18,7 @@ Cypress.Commands.add('loginViaApi', (userType = 'CUSTOMER') => {
   return cy.request({
     method: 'POST',
     // cy.request does not use baseUrl, so we provide the full backend URL
-    url: 'http://localhost:8080/api/auth/login',
+    url: `${Cypress.env('backendUrl')}/api/auth/login`,
     body: {
       username: credentials.email,
       password: credentials.password,
@@ -40,7 +40,7 @@ Cypress.Commands.add('createOrderViaApi', () => {
     cy.request({
       method: 'POST',
       // cy.request does not use baseUrl, so we provide the full backend URL
-      url: 'http://localhost:8080/api/orders',
+      url: `${Cypress.env('backendUrl')}/api/orders`,
       headers: {
         'Authorization': `Bearer ${authToken}`,
       },

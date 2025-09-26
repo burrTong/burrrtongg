@@ -66,6 +66,7 @@ version: "3.8"
 services:
   backend:
     build: ./backend
+    ports: ["18090:8080"]
   frontend:
     build:
       context: ./frontend/burrtong
@@ -101,7 +102,7 @@ services:
         steps {
             dir('frontend/burrtong') {
                 sh '''
-                  npm run cy:run -- --config baseUrl=http://localhost:18081
+                  npm run cy:run -- --config baseUrl=http://localhost:18081 --env backendUrl=http://localhost:18090
                 '''
             }
         }
