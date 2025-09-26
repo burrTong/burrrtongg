@@ -67,6 +67,8 @@ services:
   backend:
     build: ./backend
     ports: ["18090:8080"]
+    environment:
+      - SERVER_ADDRESS=0.0.0.0
   frontend:
     build:
       context: ./frontend/burrtong
