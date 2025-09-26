@@ -1,0 +1,200 @@
+/* ====== Layout base ====== */
+.cart-container {
+  padding: 2rem 4rem;
+  font-family: sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cart-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 2rem;
+  gap: 2rem;
+}
+
+.cart-items { flex: 2; min-width: 0; }
+
+/* ====== Header & rows (desktop) ====== */
+.cart-header {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  text-align: right;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 1rem 0;
+  text-align: right;
+  gap: .5rem 1rem;
+}
+
+.cart-item-details {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  min-width: 0;
+}
+
+.cart-item-details img {
+  width: 80px;
+  height: 80px;
+  margin-right: 1rem;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.cart-item-details p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-item-price { font-weight: bold; }
+
+.cart-item-quantity {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
+.cart-item-quantity button {
+  background: none;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+}
+
+.cart-item-quantity span { min-width: 1.5rem; text-align: center; }
+
+/* ====== Summary (desktop) ====== */
+.cart-summary {
+  flex: 1;
+  border: 1px solid #eee;
+  padding: 1.5rem;
+  border-radius: 12px;
+  height: fit-content;
+  min-width: 280px;
+  position: sticky;
+  top: 96px; /* ปรับตามความสูง Navbar ได้ */
+  background: #fff;
+}
+
+.cart-summary h2 { margin-top: 0; font-size: 1.25rem; }
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.checkout-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.checkout-button.success {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  border-color: #4CAF50;
+}
+
+/* ====== Back link ====== */
+.back-link { margin-top: 2rem; }
+
+/* ====== Breakpoint: ≤ 1024px (แท็บเล็ตแนวนอน) ====== */
+@media (max-width: 1024px) {
+  .cart-container { padding: 1.5rem 2rem; }
+  .cart-item { grid-template-columns: 2fr 1fr 1fr; }
+  .cart-summary { top: 80px; }
+}
+
+/* ====== Breakpoint: ≤ 768px (แท็บเล็ต/มือถือ) ====== */
+@media (max-width: 768px) {
+  .cart-container { padding: 1.25rem 1rem; }
+  .cart-content {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  /* สรุปย้ายลงล่างและเลิก sticky */
+  .cart-summary {
+    position: static;
+    width: 100%;
+    order: 2;
+  }
+  .cart-items { order: 1; }
+
+  /* ซ่อนหัวตารางบนมือถือ */
+  .cart-header { display: none; }
+
+  /* จัดแถวสินค้าใหม่ให้อ่านง่าย */
+  .cart-item {
+    grid-template-columns: 80px 1fr;
+    grid-template-rows: auto auto;
+    text-align: left;
+    padding: .75rem 0;
+  }
+
+  /* แถวบน: รูป + ชื่อ (เต็มแถว) */
+  .cart-item-details {
+    grid-column: 1 / -1;
+  }
+
+  /* แถวล่าง: จำนวนอยู่ซ้าย, ราคาอยู่ขวา */
+  .cart-item-quantity {
+    grid-column: 1 / 2;
+    justify-content: flex-start;
+  }
+  .cart-item-price {
+    grid-column: 2 / 3;
+    justify-self: end;
+    font-weight: 700;
+  }
+
+  .cart-item-quantity button {
+    padding: 0.5rem 0.75rem;   /* ปุ่มใหญ่ขึ้นจับถนัดนิ้ว */
+  }
+  .cart-item-quantity span { margin: 0 .25rem; }
+
+  .summary-total { justify-content: space-between; }
+
+  .back-link a { font-size: 1.25rem; }
+}
+
+/* ====== Breakpoint: ≤ 480px (มือถือเล็ก) ====== */
+@media (max-width: 480px) {
+  .cart-item-details img {
+    width: 64px;
+    height: 64px;
+    margin-right: .75rem;
+  }
+  .checkout-button { padding: .85rem; }
+}

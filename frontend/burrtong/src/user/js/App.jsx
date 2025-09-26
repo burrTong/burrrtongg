@@ -1,0 +1,44 @@
+import React, { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./Navbar.jsx";
+import HomePage from "./HomePage.jsx";
+import Products from "./Products.jsx";
+import ProductDetail from "./ProductDetail.jsx";
+import Cart from "./Cart.jsx";
+
+// สไตล์: ให้ Navbar.css มาทีหลังสุดเพื่อครอบสไตล์
+import "../css/index.css";   // base reset
+import "../css/App.css";     // layout/section
+import "../css/Navbar.css";  // ควรมาทีหลัง
+
+function App() {
+  const [cart, setCart] = useState([]);
+
+  return (
+    <>
+      {/* Navbar อยู่นอก container เพื่อคงที่ทุกหน้าใน /home */}
+      <Navbar />
+
+      <div className="container">
+        <Routes>
+          {/* /home */}
+          <Route path="" element={<HomePage />} />
+          {/* /home/products */}
+          <Route path="products" element={<Products />} />
+          {/* /home/products/:productId */}
+          <Route
+            path="products/:productId"
+            element={<ProductDetail cart={cart} setCart={setCart} />}
+          />
+          {/* /home/cart */}
+          <Route
+            path="cart"
+            element={<Cart cart={cart} setCart={setCart} />}
+          />
+        </Routes>
+      </div>
+    </>
+  );
+}
+
+export default App;
