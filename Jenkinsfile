@@ -80,19 +80,32 @@ services:
             sh "docker-compose -f docker-compose.e2e.yml up -d --build"
 
             sh '''
-              echo "Waiting for services to start..."
+              echo "Waiting for frontend service (port 18081)..."
               ATTEMPTS=0
               MAX_ATTEMPTS=24
               until curl -sf http://localhost:18081 > /dev/null; do
                 if [ ${ATTEMPTS} -ge ${MAX_ATTEMPTS} ]; then
-                  echo "Service did not start in time. Aborting."
+                  echo "Frontend service did not start in time. Aborting."
                   exit 1
                 fi
                 ATTEMPTS=$((ATTEMPTS + 1))
-                echo "Waiting... (${ATTEMPTS}/${MAX_ATTEMPTS})"
+                echo "Waiting for frontend... (${ATTEMPTS}/${MAX_ATTEMPTS})"
                 sleep 5
               done
-              echo "Services are running."
+              echo "Frontend service is running."
+
+              echo "Waiting for backend service (port 18090)..."
+              ATTEMPTS=0
+              until nc -z localhost 18090; do
+                if [ ${ATTEMPTS} -ge ${MAX_ATTEMPTS} ]; then
+                  echo "Backend service did not start in time. Aborting."
+                  exit 1
+                fi
+                ATTEMPTS=$((ATTEMPTS + 1))
+                echo "Waiting for backend... (${ATTEMPTS}/${MAX_ATTEMPTS})"
+                sleep 5
+              done
+              echo "Backend service is running."
             '''
         }
     }
