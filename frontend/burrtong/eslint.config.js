@@ -10,9 +10,6 @@ export default defineConfig([
   {
     files: ['**/*.{js,jsx}'],
     ignores: ['cypress/**', 'cypress.config.js'], // Ignore Cypress files in the main config
-    extends: [
-      js.configs.recommended,
-    ],
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
