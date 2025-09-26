@@ -59,27 +59,27 @@ pipeline {
     stage('E2E Setup: Run Application') {
         when { expression { params.RUN_E2E } }
         steps {
+            writeFile(
+                file: 'docker-compose.e2e.yml',
+                text: '''
+version: "3.8"
+services:
+  backend:
+    build: ./backend
+    ports: ["8080:8080"]
+  frontend:
+    build:
+      context: ./frontend/burrtong
+      dockerfile: Dockerfile
+    ports: ["80:80"]
+    depends_on:
+      - backend
+'''
+            )
+
+            sh "docker-compose -f docker-compose.e2e.yml up -d --build"
+
             sh """
-              # Create a docker-compose file for the E2E environment
-              cat > docker-compose.e2e.yml <<'YAML'
-              version: "3.8"
-              services:
-                backend:
-                  build: ./backend
-                  ports: ["8080:8080"]
-                frontend:
-                  build:
-                    context: ./frontend/burrtong
-                    dockerfile: Dockerfile
-                  ports: ["80:80"]
-                  depends_on:
-                    - backend
-              YAML
-
-              # Build and run the services in the background
-              docker-compose -f docker-compose.e2e.yml up -d --build
-
-              # Wait for the frontend to be accessible
               echo "Waiting for services to start..."
               timeout 120 sh -c 'until curl -sf http://localhost > /dev/null; do sleep 5; done'
               echo "Services are running."
