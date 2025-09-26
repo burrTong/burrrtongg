@@ -64,11 +64,24 @@ pipeline {
           text: '''
 version: "3.8"
 services:
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432"
   backend:
     build: ./backend
     ports: ["18090:8080"]
     environment:
       - SERVER_ADDRESS=0.0.0.0
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mydatabase
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      - db
   frontend:
     build:
       context: ./frontend/burrtong
