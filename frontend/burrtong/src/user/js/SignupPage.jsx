@@ -38,7 +38,7 @@ function SignupPage() {
 
     if (Object.keys(newErrors).length === 0) {
       // (TODO: ส่งข้อมูลไป backend ถ้ามี)
-      navigate("/"); // ไปหน้า Login
+      navigate("/login"); // ไปหน้า Login
     }
   };
 
@@ -50,7 +50,7 @@ function SignupPage() {
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label>Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} data-test="signup-username" />
             {errors.email && <p className="error">{errors.email}</p>}
           </div>
           <div className="input-group">
@@ -60,7 +60,7 @@ function SignupPage() {
           </div>
           <div className="input-group">
             <label>Password</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} />
+            <input type="password" name="password" value={formData.password} onChange={handleChange} data-test="signup-password" />
             {errors.password && <p className="error">{errors.password}</p>}
           </div>
           <div className="input-group">
@@ -73,7 +73,7 @@ function SignupPage() {
             <input type="tel" name="phone" value={formData.phone} onChange={handleChange} />
             {errors.phone && <p className="error">{errors.phone}</p>}
           </div>
-          <button type="submit" className="signup-button">Sign up</button>
+          <button type="submit" className="signup-button" data-test="signup-submit">Sign up</button>
         </form>
         <p className="login-link">
           Already have an account? <Link to="/">Login</Link>

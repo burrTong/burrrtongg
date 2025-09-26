@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { login } from '../api/authApi'; // นำเข้าฟังก์ชัน login
+import { login } from '../api/authApi';
 import '../css/LoginPage.css';
 
 const LoginPage = () => {
@@ -12,7 +12,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
 
     if (!email || !password) {
       setError('Please enter both email and password.');
@@ -21,41 +21,34 @@ const LoginPage = () => {
 
     try {
       const userData = await login(email, password);
-      
-      // Store user info for display
-      localStorage.setItem('username', email); // <-- เก็บ email ที่ใช้ login ไว้ใน key 'username'
+      localStorage.setItem('username', email);
 
-      // ตรวจสอบ role จาก response ที่ได้
       if (userData.role === 'ADMIN') {
-        navigate('/admin'); // ไปหน้า admin
-      } else if (userData.role === 'CUSTOMER') {
-        navigate('/home'); // ไปหน้า user
+        navigate('/admin');
       } else {
-        // กรณีไม่มี role หรือ role ไม่ตรงกับที่คาดหวัง
-        setError('Login successful, but role is undefined.');
-        navigate('/home'); // หรือไปหน้า default
+        navigate('/home');
       }
-
     } catch (err) {
       setError(err.message || 'An error occurred during login.');
     }
   };
 
   return (
-    <div className="login-page">
+    <div className="login-page" data-test="login-page">
       <div className="login-container">
         <div className="logo-container">
           <img src="/vite.svg" alt="BURTONG Logo" className="logo" />
           <h1>BURTONG</h1>
         </div>
         <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
-          {error && <p className="error-message">{error}</p>} {/* แสดงข้อความ error */}
+        <form onSubmit={handleSubmit} data-test="login-form">
+          {error && <p className="error-message" data-test="login-error">{error}</p>}
           <div className="input-group">
             <label htmlFor="email">Email</label>
             <input 
               type="email" 
               id="email" 
+              data-test="login-username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -64,7 +57,8 @@ const LoginPage = () => {
             <label htmlFor="password">Password</label>
             <input 
               type="password" 
-              id="password" 
+              id="password"
+              data-test="login-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -75,7 +69,7 @@ const LoginPage = () => {
             </label>
             <a href="#">Forgot Password</a>
           </div>
-          <button type="submit" className="login-btn">Login</button>
+          <button type="submit" className="login-btn" data-test="login-submit">Login</button>
         </form>
         <div className="signup-link">
          <p>Not a member? <Link to="/signup">SIGN UP!</Link></p>

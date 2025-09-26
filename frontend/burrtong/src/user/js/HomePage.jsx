@@ -10,7 +10,7 @@ import userImg from "../../assets/user.png";
 import AUImg from "../../assets/AU.jpg";
 
 import "../css/App.css";
-import HotProducts from "./HotProducts.jsx"; // <-- เพิ่มบรรทัดนี้
+import HotProducts from "./HotProducts.jsx";
 
 function HomePage() {
   const settings = {
@@ -25,8 +25,7 @@ function HomePage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" data-test="home-hero">
         <Slider {...settings}>
           <div><img src={cartImg} alt="Cart" className="colossal-image" /></div>
           <div><img src={productImg} alt="Product" className="colossal-image" /></div>
@@ -35,8 +34,7 @@ function HomePage() {
         </Slider>
       </section>
 
-      {/* Hot Products */}
-      <HotProducts limit={3} />
+      <HotProducts limit={3} data-test="home-hot-products" />
     </>
   );
 }

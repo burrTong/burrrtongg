@@ -75,7 +75,11 @@ function NewProductModal({ isOpen, onClose, onCreateProduct }) {
         </form>
       </div>
     </div>
+    
   );
+  // ProductCard.jsx
+
+
 }
 
 export default NewProductModal;

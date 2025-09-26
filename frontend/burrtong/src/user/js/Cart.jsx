@@ -34,7 +34,7 @@ const Cart = ({ cart, setCart }) => {
     }
 
     const orderRequest = {
-      customerId: 1, // Hardcoded customer ID for now
+      customerId: 1,
       items: cart.map(item => ({
         productId: item.id,
         quantity: item.quantity,
@@ -47,7 +47,7 @@ const Cart = ({ cart, setCart }) => {
       setTimeout(() => {
         setCart([]);
         setCheckoutStatus('idle');
-      }, 3000); // Reset after 3 seconds
+      }, 3000);
     } catch (error) {
       console.error("Failed to create order:", error);
       setCheckoutStatus('error');
@@ -56,7 +56,7 @@ const Cart = ({ cart, setCart }) => {
   };
 
   return (
-    <div className="cart-container">
+    <div className="cart-container" data-test="cart-page">
       <h1>Shopping Cart</h1>
       <div className="cart-content">
         <div className="cart-items">
@@ -68,26 +68,29 @@ const Cart = ({ cart, setCart }) => {
           {cart.map(item => {
             const product = new Product(item);
             return (
-              <div className="cart-item" key={item.id}>
+              <div className="cart-item" key={item.id} data-test={`cart-item-${item.id}`}>
                 <div className="cart-item-details">
-                  <img src={product.mainImage} alt={product.name} />
-                  <p>{product.name}</p>
+                  <img src={product.mainImage} alt={product.name} data-test={`cart-item-img-${item.id}`} />
+                  <p data-test={`cart-item-name-${item.id}`}>{product.name}</p>
                 </div>
-                <div className="cart-item-price">{product.getFormattedPrice()}</div>
+                <div className="cart-item-price" data-test={`cart-item-price-${item.id}`}>
+                  {product.getFormattedPrice()}
+                </div>
                 <div className="cart-item-quantity">
-                  <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
-                  <span>{item.quantity}</span>
-                  <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
+                  <button data-test={`cart-qty-dec-${item.id}`} onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
+                  <input type="number" value={item.quantity} onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value, 10))} data-test="cart-item-quantity" />
+                  <button data-test={`cart-qty-inc-${item.id}`} onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
+                  <button data-test="update-cart-button">Update</button>
                 </div>
               </div>
             )
           })}
         </div>
-        <div className="cart-summary">
+        <div className="cart-summary" data-test="order-summary">
           <h2>ราคารวมสินค้า</h2>
           <div className="summary-row">
             <span>subtotal</span>
-            <span>{getTotal().toLocaleString()}.-</span>
+            <span data-test="cart-total">{getTotal().toLocaleString()}.-</span>
           </div>
           <div className="summary-row">
             <span>shipping</span>
@@ -95,9 +98,10 @@ const Cart = ({ cart, setCart }) => {
           </div>
           <hr />
           <div className="summary-total">
-            <span>{getTotal().toLocaleString()}.-</span>
+            <span data-test="summary-total">{getTotal().toLocaleString()}.-</span>
           </div>
           <button 
+            data-test="checkout-button"
             className={`checkout-button ${checkoutStatus === 'success' ? 'success' : ''}`}
             onClick={handleCheckout} 
             disabled={checkoutStatus === 'success'}
@@ -107,7 +111,6 @@ const Cart = ({ cart, setCart }) => {
         </div>
       </div>
       <div className="back-link">
-        {/* อัปเดตลิงก์กลับไปหน้า products */}
         <Link to="/home/products">←</Link>
       </div>
     </div>

@@ -25,9 +25,7 @@ const ProductDetail = ({ cart, setCart }) => {
     fetchProduct();
   }, [productId]);
 
-  const handleBack = () => {
-    navigate(-1);
-  };
+  const handleBack = () => navigate(-1);
 
   const handleIncrement = () => {
     if (product && quantity < product.stock) {
@@ -39,18 +37,14 @@ const ProductDetail = ({ cart, setCart }) => {
     setQuantity(prev => (prev > 1 ? prev - 1 : 1));
   };
 
-  const handleSizeSelect = (size) => {
-    setSelectedSize(size);
-  };
+  const handleSizeSelect = (size) => setSelectedSize(size);
 
   const handleAddToCart = () => {
-    if (!product) return;
-    if (product.stock === 0) return; // Cannot add out of stock items
+    if (!product || product.stock === 0) return;
     if (quantity > product.stock) {
       alert('Not enough stock!');
       return;
     }
-
     const existingProduct = cart.find(item => item.id === product.id);
     if (existingProduct) {
       setCart(
@@ -73,7 +67,7 @@ const ProductDetail = ({ cart, setCart }) => {
   if (!product) return <div>Product not found!</div>;
 
   return (
-    <div className="product-detail-page">
+    <div className="product-detail-page" data-test="product-detail-page">
       <div className="breadcrumb"></div>
       <div className="back-arrow-container">
         <a
@@ -89,49 +83,51 @@ const ProductDetail = ({ cart, setCart }) => {
           <div className="thumbnails">
             {product.thumbnails.map((thumb, index) => (
               <div key={index} className="thumbnail-image">
-                <img src={thumb} alt={`thumbnail ${index + 1}`} />
+                <img src={thumb} alt={`thumbnail ${index + 1}`} data-test={`thumb-img-${index}`} />
               </div>
             ))}
           </div>
           <div className="main-image">
-            <img src={product.mainImage} alt="main product" />
+            <img src={product.mainImage} alt="main product" data-test="product-detail-image" />
           </div>
         </div>
 
         <div className="product-info">
-          <p className="brand">{product.brand}</p>
-          <h1>{product.name}</h1>
-          <p className="product-id">Product id : {product.productId}</p>
-          <p className="price">{product.getFormattedPrice()}</p>
-          <p className={`stock-status ${product.stock === 0 ? 'out-of-stock' : ''}`}>
-            {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
+          <p className="brand" data-test="product-brand">{product.brand}</p>
+          <h1 data-test="product-detail-name">{product.name}</h1>
+          <p className="product-id" data-test="product-id">Product id : {product.productId}</p>
+          <p className="price" data-test="product-detail-price">{product.getFormattedPrice()}</p>
+          <p className={`stock-status ${product.stock === 0 ? 'out-of-stock' : ''}`}
+             data-test="product-detail-stock">
+             {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
           </p>
 
           <div className="size-selection">
             <p className="size-label">Size :</p>
-            <div className="sizes">
-              {SIZES.map(size => (
-                <button
-                  key={size}
-                  className={`size-button ${selectedSize === size ? 'selected' : ''}`}
-                  onClick={() => handleSizeSelect(size)}
-                >
-                  {size}
-                </button>
-              ))}
+            <div className="sizes" data-test="product-detail-size">
+              <select data-test="size-select" onChange={(e) => handleSizeSelect(e.target.value)}>
+                {SIZES.map(size => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
             </div>
           </div>
 
-          <div className="quantity-selector">
+          <div className="quantity-selector" data-test="product-quantity">
             <p className="quantity-label">จำนวน</p>
             <div className="quantity-controls">
-              <button onClick={handleDecrement} disabled={product.stock === 0}>-</button>
-              <span>{quantity}</span>
-              <button onClick={handleIncrement} disabled={product.stock === 0}>+</button>
+              <button data-test="qty-dec" onClick={handleDecrement} disabled={product.stock === 0}>-</button>
+              <input type="text" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 1)} data-test="quantity-input" />
+              <button data-test="qty-inc" onClick={handleIncrement} disabled={product.stock === 0}>+</button>
             </div>
           </div>
 
-          <button className="add-to-cart" onClick={handleAddToCart} disabled={product.stock === 0}>
+          <button
+            className="add-to-cart"
+            data-test="add-to-cart-button"
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+          >
             {product.stock > 0 ? 'เพิ่มใส่ตะกร้า' : 'สินค้าหมด'}
           </button>
         </div>

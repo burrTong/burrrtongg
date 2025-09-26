@@ -41,7 +41,7 @@ function Navbar() {
 
       {/* Search (ซ่อนอัตโนมัติบนมือถือด้วย CSS; ไม่รวมในเมนู) */}
       <div className="search-container">
-        <button className="search-btn" aria-label="Search">
+        <button className="search-btn" aria-label="Search" data-test="search-button">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 
                      1.398h-.001l3.85 3.85a1 1 0 0 0 
@@ -50,19 +50,20 @@ function Navbar() {
                      5.5 5.5 0 0 1 0 11z" />
           </svg>
         </button>
-        <input type="text" placeholder="search" className="search-box" />
+        <input type="text" placeholder="search" className="search-box" data-test="search-input" />
       </div>
 
       {/* Desktop: Links + Avatar */}
       <div className="nav-links">
         <Link to="/home">Home</Link>
         <Link to="/home/products">Products</Link>
-        <Link to="/home/cart">Shopping Cart</Link>
+        <Link to="/home/cart" data-test="cart-icon">Shopping Cart</Link>
       </div>
 
       <div className="avatar-wrapper" ref={avatarRef}>
         <div
           className="avatar"
+          data-test="user-avatar"
           role="button"
           tabIndex={0}
           aria-haspopup="menu"
@@ -104,7 +105,7 @@ function Navbar() {
             <div className="section-title">Navigate</div>
             <Link to="/home" onClick={() => setMobileOpen(false)}>Home</Link>
             <Link to="/home/products" onClick={() => setMobileOpen(false)}>Products</Link>
-            <Link to="/home/cart" onClick={() => setMobileOpen(false)}>Shopping Cart</Link>
+            <Link to="/home/cart" onClick={() => setMobileOpen(false)} data-test="cart-icon">Shopping Cart</Link>
 
             <div className="section-title">Account</div>
             <button className="danger" onClick={() => { setMobileOpen(false); handleLogout(); }}>
