@@ -110,12 +110,7 @@ until docker-compose -f docker-compose.e2e.yml exec -T db pg_isready -U postgres
 done
 echo "Database service is running."
 
-echo "Seeding database..."
-docker-compose -f docker-compose.e2e.yml exec -T db psql -U postgres -d mydatabase -c "INSERT INTO users (username, password, role) VALUES ('customer@customer.com', '\$2a\$10\$R.gJ3r2a5iT.N.d.a.s.e.O.p.q.r.s.t.u.v.w.x.y.z.A.B.C.D.E.F', 'CUSTOMER');"
-docker-compose -f docker-compose.e2e.yml exec -T db psql -U postgres -d mydatabase -c "INSERT INTO users (username, password, role) VALUES ('admin@admin.com', '\$2a\$10\$R.gJ3r2a5iT.N.d.a.s.e.O.p.q.r.s.t.u.v.w.x.y.z.A.B.C.D.E.F', 'ADMIN');"
-echo "Database seeded."
-
-echo "Waiting for backend service (port 18090)..."
+echo "Waiting for backend service to be healthy..."
 ATTEMPTS=0
 until curl -sf http://127.0.0.1:18090/actuator/health | grep UP; do
   if [ ${ATTEMPTS} -ge ${MAX_ATTEMPTS} ]; then
@@ -128,9 +123,16 @@ until curl -sf http://127.0.0.1:18090/actuator/health | grep UP; do
   sleep 5
 done
 echo "Backend service is healthy and running."
+
+echo "Seeding database..."
+sleep 5 # Add a small extra delay just in case schema creation is slow
+docker-compose -f docker-compose.e2e.yml exec -T db psql -U postgres -d mydatabase -c "INSERT INTO users (username, password, role) VALUES ('customer@customer.com', '\$2a\$10\$R.gJ3r2a5iT.N.d.a.s.e.O.p.q.r.s.t.u.v.w.x.y.z.A.B.C.D.E.F', 'CUSTOMER');"
+docker-compose -f docker-compose.e2e.yml exec -T db psql -U postgres -d mydatabase -c "INSERT INTO users (username, password, role) VALUES ('admin@admin.com', '\$2a\$10\$R.gJ3r2a5iT.N.d.a.s.e.O.p.q.r.s.t.u.v.w.x.y.z.A.B.C.D.E.F', 'ADMIN');"
+echo "Database seeded."
 '''
             }
         }
+
         stage('E2E Test: Cypress') {
             when { expression { params.RUN_E2E } }
             steps {
