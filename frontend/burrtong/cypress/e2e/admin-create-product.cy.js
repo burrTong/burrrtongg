@@ -2,11 +2,11 @@ describe('ขั้นตอนการสร้างสินค้าให�
 
   beforeEach(() => {
     // ก่อนการเทสแต่ละครั้ง ให้ทำการล็อกอินเข้าระบบด้วยบัญชี Admin
-    cy.visit('/');
+    cy.visit('/admin/login');
     cy.get('input#email').type('admin@admin.com');
-    cy.get('input#password').type('ADMIN');
+    cy.get('input#password').type('admin');
     cy.get('button[type="submit"]').click();
-    cy.url({ timeout: 10000 }).should('include', '/admin');
+    cy.url({ timeout: 10000 }).should('include', '/admin/products');
   });
 
   it('ควรจะสามารถสร้างสินค้าใหม่ได้สำเร็จ', () => {

@@ -12,7 +12,7 @@
 Cypress.Commands.add('loginViaApi', (userType = 'CUSTOMER') => {
   const credentials = {
     email: userType === 'ADMIN' ? 'admin@admin.com' : 'customer@customer.com',
-    password: userType,
+    password: userType.toLowerCase(), // Use lowercase password: 'customer' or 'admin'
   };
 
   return cy.request({
@@ -32,11 +32,12 @@ Cypress.Commands.add('loginViaApi', (userType = 'CUSTOMER') => {
 
 // -- Custom command to create an order via API --
 Cypress.Commands.add('createOrderViaApi', () => {
-  // First, log in as a customer to get a valid token
+  // First, log in as a customer to get a valid token and customer ID
   cy.loginViaApi('CUSTOMER').then(customer => {
     const authToken = Cypress.env('authToken');
+    const customerId = customer.id; // Use the actual ID from the login response
 
-    // Then, create an order using the customer's token
+    // Then, create an order using the customer's token and ID
     cy.request({
       method: 'POST',
       // cy.request does not use baseUrl, so we provide the full backend URL
@@ -45,7 +46,7 @@ Cypress.Commands.add('createOrderViaApi', () => {
         'Authorization': `Bearer ${authToken}`,
       },
       body: {
-        customerId: 1, // แก้ไขตรงนี้: Hardcode customerId เป็น 1
+        customerId: customerId, // Use the dynamic customerId
         items: [
           { productId: 1, quantity: 1 },
           { productId: 2, quantity: 2 },

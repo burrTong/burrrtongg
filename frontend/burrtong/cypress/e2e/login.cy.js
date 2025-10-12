@@ -6,7 +6,7 @@ describe('Login Flow', () => {
     // 2. กรอกอีเมลและรหัสผ่าน
     // หมายเหตุ: คุณอาจจะต้องเปลี่ยนค่า email/password ให้ตรงกับ user ที่มีอยู่จริงในฐานข้อมูลของคุณ
     cy.get('input#email').type('customer@customer.com');
-    cy.get('input#password').type('CUSTOMER');
+    cy.get('input#password').type('customer');
 
     // 3. กดปุ่มล็อกอิน
     cy.get('button[type="submit"]').click();

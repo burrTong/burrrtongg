@@ -6,11 +6,11 @@ describe('ขั้นตอนการจัดการ Order (Admin)', () =>
     cy.createOrderViaApi();
 
     // 2. (LOGIN) ล็อกอินเข้าสู่ระบบด้วยบัญชี Admin ผ่าน UI
-    cy.visit('/');
+    cy.visit('/admin/login');
     cy.get('input#email').type('admin@admin.com');
-    cy.get('input#password').type('ADMIN');
+    cy.get('input#password').type('admin');
     cy.get('button[type="submit"]').click();
-    cy.url({ timeout: 10000 }).should('include', '/admin');
+    cy.url({ timeout: 10000 }).should('include', '/admin/products');
   });
 
   it('ควรจะสามารถกด Accept Order และเปลี่ยนสถานะเป็น DELIVERED ได้', () => {

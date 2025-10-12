@@ -6,7 +6,7 @@ describe('ขั้นตอนตะกร้าสินค้า (Shopping Ca
 
     // กรอกข้อมูลล็อกอิน
     cy.get('input#email').type('customer@customer.com');
-    cy.get('input#password').type('CUSTOMER');
+    cy.get('input#password').type('customer');
     cy.get('button[type="submit"]').click();
 
     // รอจนกว่าจะแน่ใจว่าล็อกอินสำเร็จและไปที่หน้า home
