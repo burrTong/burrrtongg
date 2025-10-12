@@ -28,13 +28,20 @@ const Cart = ({ cart, setCart }) => {
   };
 
   const handleCheckout = async () => {
+    const customerId = localStorage.getItem('userId');
+
+    if (!customerId) {
+      alert("Please log in to proceed with the checkout.");
+      return;
+    }
+
     if (cart.length === 0) {
       alert("Your cart is empty.");
       return;
     }
 
     const orderRequest = {
-      customerId: 1, // Hardcoded customer ID for now
+      customerId: parseInt(customerId, 10),
       items: cart.map(item => ({
         productId: item.id,
         quantity: item.quantity,

@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getAllProducts, createProduct } from "../user/api/productApi";
+import { getAllProducts, createProduct } from "../api/productApi";
 import NewProductModal from "./NewProductModal";
-import "./ProductList.css";
+import '../css/ProductList.css';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -35,7 +36,7 @@ function ProductList() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userRole');
     localStorage.removeItem('username');
-    navigate('/login');
+    navigate('/admin/login');
   };
 
   const handleCreateProduct = async (productData) => {

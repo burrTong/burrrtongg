@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAllOrders, updateOrderStatus } from '../user/api/orderApi'; // Import updateOrderStatus
+import { getAllOrders, updateOrderStatus } from '../api/orderApi'; // Import updateOrderStatus
 
 function OrderList() {
   const [orders, setOrders] = useState([]);
@@ -30,7 +30,7 @@ function OrderList() {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate('/login');
+    navigate('/admin/login');
   };
 
   const handleUpdateStatus = async (orderId, newStatus) => {

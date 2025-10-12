@@ -43,6 +43,6 @@ public class AuthService {
         // If authentication is successful, generate a token (dummy token for now)
         String token = UUID.randomUUID().toString();
 
-        return new LoginResponse(token, user.getRole());
+        return new LoginResponse(token, user.getRole(), user.getId(), user.getUsername());
     }
 }

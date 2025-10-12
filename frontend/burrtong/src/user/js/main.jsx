@@ -6,8 +6,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 import LoginPage from "./LoginPage.jsx";
 import SignupPage from "./SignupPage.jsx";
-import ProductList from "../../admin/ProductList.jsx";
-import OrderList from "../../admin/OrderList.jsx";
+import ProductList from "../../admin/js/ProductList.jsx";
+import OrderList from "../../admin/js/OrderList.jsx";
+import AdminLoginPage from "../../admin/js/AdminLoginPage.jsx";
+import AdminSignupPage from "../../admin/js/AdminSignupPage.jsx";
+
 
 // CSS
 import "../css/index.css";
@@ -24,8 +27,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         {/* User Protected Routes */}
         <Route path="/home/*" element={<App />} />
 
-        {/* Admin Protected Routes */}
-        <Route path="/admin" element={<ProductList />} />
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/signup" element={<AdminSignupPage />} />
         <Route path="/admin/products" element={<ProductList />} />
         <Route path="/admin/orders" element={<OrderList />} />
       </Routes>

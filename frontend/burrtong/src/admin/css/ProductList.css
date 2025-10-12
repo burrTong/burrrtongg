@@ -274,11 +274,17 @@
 }
 
 .sidebar-footer {
-  padding: 20px;
-  border-top: 1px solid #444; /* Separator line */
+  padding: 10px 16px;
+  border-top: 1px solid #30304a; 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px; /* Add some space between items */
+}
+
+.user-info {
+  flex-shrink: 1; /* Allow this container to shrink */
+  min-width: 0; /* Crucial for text-overflow to work in flexbox */
 }
 
 .user-info .username {
@@ -287,21 +293,22 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px; /* Adjust as needed */
+  display: block; /* Make it a block to contain it */
 }
 
 .logout-btn {
   background: none;
-  border: 1px solid #ff4d4d;
-  color: #ff4d4d;
-  padding: 5px 10px;
+  border: 1px solid #e94560;
+  color: #e94560;
+  padding: 6px 12px;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 0.9em;
+  font-size: 14px;
   transition: all 0.2s;
+  flex-shrink: 0; /* Prevent the button from shrinking */
 }
 
 .logout-btn:hover {
-  background: #ff4d4d;
+  background: #e94560;
   color: #fff;
 }

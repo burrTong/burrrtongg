@@ -5,10 +5,14 @@ import com.example.backend.model.Role;
 public class LoginResponse {
     private String token;
     private Role role;
+    private Long id;
+    private String username;
 
-    public LoginResponse(String token, Role role) {
+    public LoginResponse(String token, Role role, Long id, String username) {
         this.token = token;
         this.role = role;
+        this.id = id;
+        this.username = username;
     }
 
     // Getters and Setters
@@ -26,5 +30,21 @@ public class LoginResponse {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

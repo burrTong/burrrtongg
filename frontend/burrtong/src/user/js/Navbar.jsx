@@ -5,11 +5,17 @@ import { Link, useNavigate } from "react-router-dom";
 function Navbar() {
   const [open, setOpen] = useState(false);              // desktop avatar dropdown
   const [mobileOpen, setMobileOpen] = useState(false);  // mobile menu
+  const [username, setUsername] = useState(null);
   const avatarRef = useRef(null);
   const mobileWrapRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+
     const handleClickOutside = (e) => {
       if (avatarRef.current && !avatarRef.current.contains(e.target)) setOpen(false);
       if (mobileWrapRef.current && !mobileWrapRef.current.contains(e.target)) setMobileOpen(false);
@@ -30,7 +36,8 @@ function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    // TODO: เคลียร์ token/session ถ้ามี
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
     navigate("/"); // กลับหน้า Login
   };
 
@@ -77,7 +84,7 @@ function Navbar() {
 
         {open && (
           <div className="dropdown" role="menu" aria-label="Account menu">
-            <div className="dropdown-item dropdown-label">Account</div>
+            <div className="dropdown-item dropdown-label">{username ? username : 'Account'}</div>
             <button className="dropdown-item danger" onClick={handleLogout}>
               Log out
             </button>
@@ -106,7 +113,7 @@ function Navbar() {
             <Link to="/home/products" onClick={() => setMobileOpen(false)}>Products</Link>
             <Link to="/home/cart" onClick={() => setMobileOpen(false)}>Shopping Cart</Link>
 
-            <div className="section-title">Account</div>
+            <div className="section-title">{username ? username : 'Account'}</div>
             <button className="danger" onClick={() => { setMobileOpen(false); handleLogout(); }}>
               Log out
             </button>

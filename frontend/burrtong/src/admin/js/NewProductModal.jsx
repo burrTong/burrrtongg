@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './NewProductModal.css'; // We will create this file for styling
+import '../css/NewProductModal.css'; // We will create this file for styling
 
 function NewProductModal({ isOpen, onClose, onCreateProduct }) {
   const [name, setName] = useState('');

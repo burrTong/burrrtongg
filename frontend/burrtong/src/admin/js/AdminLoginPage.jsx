@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { login } from '../api/authApi'; // นำเข้าฟังก์ชัน login
-import '../css/LoginPage.css';
+import { login } from '../api/authApi';
+import '../../user/css/LoginPage.css';
 
-const LoginPage = () => {
+const AdminLoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,7 +12,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
 
     if (!email || !password) {
       setError('Please enter both email and password.');
@@ -22,19 +22,11 @@ const LoginPage = () => {
     try {
       const userData = await login(email, password);
       
-      // Store user info for display
-      localStorage.setItem('username', userData.username);
-      localStorage.setItem('userId', userData.id);
-
-      // ตรวจสอบ role จาก response ที่ได้
-      if (userData.role === 'CUSTOMER') {
-        navigate('/home'); // ไปหน้า user
-      } else if (userData.role === 'ADMIN') {
-        setError('Admin accounts should log in via the admin portal.');
+      if (userData.role === 'ADMIN') {
+        localStorage.setItem('username', email);
+        navigate('/admin/products');
       } else {
-        // กรณีไม่มี role หรือ role ไม่ตรงกับที่คาดหวัง
-        setError('Login successful, but role is undefined.');
-        navigate('/home'); // หรือไปหน้า default
+        setError('You are not authorized to access the admin panel.');
       }
 
     } catch (err) {
@@ -47,11 +39,11 @@ const LoginPage = () => {
       <div className="login-container">
         <div className="logo-container">
           <img src="/vite.svg" alt="BURTONG Logo" className="logo" />
-          <h1>BURTONG</h1>
+          <h1>BURTONG - Admin</h1>
         </div>
-        <h2>Login</h2>
+        <h2>Admin Login</h2>
         <form onSubmit={handleSubmit}>
-          {error && <p className="error-message">{error}</p>} {/* แสดงข้อความ error */}
+          {error && <p className="error-message">{error}</p>}
           <div className="input-group">
             <label htmlFor="email">Email</label>
             <input 
@@ -70,20 +62,14 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <div className="options">
-            <label>
-              <input type="checkbox" /> Remember me
-            </label>
-            <a href="#">Forgot Password</a>
-          </div>
           <button type="submit" className="login-btn">Login</button>
         </form>
         <div className="signup-link">
-         <p>Not a member? <Link to="/signup">SIGN UP!</Link></p>
+         <p>Not an admin? <Link to="/admin/signup">Request Admin Access</Link></p>
         </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default AdminLoginPage;
