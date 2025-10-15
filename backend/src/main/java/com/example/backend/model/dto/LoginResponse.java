@@ -1,17 +1,12 @@
 package com.example.backend.model.dto;
 
-import com.example.backend.model.Role;
-
 public class LoginResponse {
+
     private String token;
-    private Role role;
-    private Long id;
     private String username;
 
-    public LoginResponse(String token, Role role, Long id, String username) {
+    public LoginResponse(String token, String username) {
         this.token = token;
-        this.role = role;
-        this.id = id;
         this.username = username;
     }
 
@@ -22,22 +17,6 @@ public class LoginResponse {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUsername() {

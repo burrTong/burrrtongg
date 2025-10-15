@@ -1,48 +1,78 @@
 package com.example.backend.service;
 
+import com.example.backend.entity.Admin;
 import com.example.backend.entity.User;
-import com.example.backend.exception.ResourceNotFoundException;
-import com.example.backend.model.Role;
+import com.example.backend.model.dto.AdminLoginRequest;
 import com.example.backend.model.dto.LoginRequest;
 import com.example.backend.model.dto.LoginResponse;
 import com.example.backend.model.dto.RegisterRequest;
+import com.example.backend.repository.AdminRepository;
 import com.example.backend.repository.UserRepository;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.List;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, AdminRepository adminRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
-    public User register(RegisterRequest registerRequest) {
+    public User register(RegisterRequest request) {
+        if (userRepository.findByUsername(request.getUsername()).isPresent() || userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("User already exists");
+        }
         User user = new User();
-        user.setUsername(registerRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setRole(Role.CUSTOMER); // Default role
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         return userRepository.save(user);
     }
 
-    public LoginResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + loginRequest.getUsername()));
+    public LoginResponse login(LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
 
-        // For now, just check if password matches (no encoding)
-        if (!loginRequest.getPassword().equals(user.getPassword())) {
-             throw new RuntimeException("Invalid password"); // Or a more specific exception
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwtToken = jwtService.generateToken(userDetails);
+
+        return new LoginResponse(jwtToken, userDetails.getUsername());
+    }
+
+    public LoginResponse loginAdmin(AdminLoginRequest request) {
+        Admin admin = adminRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
+            throw new RuntimeException("Invalid admin credentials");
         }
 
-        // If authentication is successful, generate a token (dummy token for now)
-        String token = UUID.randomUUID().toString();
+        UserDetails adminDetails = new org.springframework.security.core.userdetails.User(
+                admin.getEmail(),
+                admin.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
+        );
 
-        return new LoginResponse(token, user.getRole(), user.getId(), user.getUsername());
+        String jwtToken = jwtService.generateToken(adminDetails);
+
+        return new LoginResponse(jwtToken, admin.getEmail());
     }
 }

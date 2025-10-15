@@ -3,9 +3,11 @@ package com.example.backend.model.dto;
 import java.util.List;
 
 public class OrderRequest {
+
     private Long customerId;
     private List<OrderItemRequest> items;
 
+    // Getters and Setters
     public Long getCustomerId() {
         return customerId;
     }

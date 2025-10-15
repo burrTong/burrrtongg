@@ -2,6 +2,8 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Product;
 import com.example.backend.service.ProductService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal; // Added import
+import org.springframework.security.core.userdetails.UserDetails; // Added import
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +29,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product) { // Removed @AuthenticationPrincipal UserDetails userDetails
-        return productService.createProduct(product); // Removed userDetails parameter
+    public Product createProduct(@RequestBody Product product, @AuthenticationPrincipal UserDetails userDetails) { // Modified signature
+        return productService.createProduct(product, userDetails); // Modified call
     }
 
     @PutMapping("/{id}")

@@ -1,12 +1,7 @@
 package com.example.backend.config;
 
 import com.example.backend.repository.UserRepository;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class ApplicationConfig {
@@ -17,14 +12,9 @@ public class ApplicationConfig {
         this.userRepository = userRepository;
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
-    }
+    // The UserDetailsService and PasswordEncoder beans that were previously
+    // defined in this file have been removed.
+    // The UserDetailsService is now provided by the UserService class (annotated with @Service).
+    // The PasswordEncoder is now defined in SecurityConfig.java.
+    // This resolves the BeanDefinitionOverrideException.
 }

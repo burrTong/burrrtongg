@@ -4,6 +4,7 @@ public class OrderItemRequest {
     private Long productId;
     private int quantity;
 
+    // Getters and Setters
     public Long getProductId() {
         return productId;
     }
