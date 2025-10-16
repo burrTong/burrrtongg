@@ -2,10 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.entity.Admin;
 import com.example.backend.entity.User;
-import com.example.backend.model.dto.AdminLoginRequest;
-import com.example.backend.model.dto.LoginRequest;
-import com.example.backend.model.dto.LoginResponse;
-import com.example.backend.model.dto.RegisterRequest;
+import com.example.backend.model.dto.*;
 import com.example.backend.repository.AdminRepository;
 import com.example.backend.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,6 +41,17 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         return userRepository.save(user);
+    }
+
+    public Admin registerAdmin(AdminRegisterRequest request) {
+        if (adminRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Admin with this email already exists");
+        }
+        Admin admin = new Admin();
+        admin.setName(request.getName());
+        admin.setEmail(request.getEmail());
+        admin.setPassword(passwordEncoder.encode(request.getPassword()));
+        return adminRepository.save(admin);
     }
 
     public LoginResponse login(LoginRequest request) {

@@ -1,28 +1,33 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../user/css/SignupPage.css';
+import { registerAdmin } from '../api/authApi';
 
 function AdminSignupPage() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: '',
+    name: '',
     password: '',
     confirmPassword: ''
   });
 
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: '' });
+    setApiError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let newErrors = {};
 
     if (!formData.email) newErrors.email = "Please enter your email";
+    if (!formData.name) newErrors.name = "Please enter your name";
     if (!formData.password) newErrors.password = "Please enter your password";
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = "Please enter your confirm password";
@@ -33,10 +38,13 @@ function AdminSignupPage() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      // TODO: Implement admin registration logic
-      console.log("Admin registration submitted:", formData);
-      alert("Admin registration request sent!");
-      navigate("/admin/login");
+      try {
+        await registerAdmin({ name: formData.name, email: formData.email, password: formData.password });
+        alert('Admin registration successful! Please log in.');
+        navigate("/admin/login");
+      } catch (error) {
+        setApiError(error.message);
+      }
     }
   };
 
@@ -46,10 +54,16 @@ function AdminSignupPage() {
         <img src="/vite.svg" alt="Burrtong" className="logo" />
         <h2>Admin Sign Up</h2>
         <form onSubmit={handleSubmit}>
+          {apiError && <p className="error">{apiError}</p>}
           <div className="input-group">
             <label>Email</label>
             <input type="email" name="email" value={formData.email} onChange={handleChange} />
             {errors.email && <p className="error">{errors.email}</p>}
+          </div>
+          <div className="input-group">
+            <label>Name</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} />
+            {errors.name && <p className="error">{errors.name}</p>}
           </div>
           <div className="input-group">
             <label>Password</label>

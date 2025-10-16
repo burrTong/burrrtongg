@@ -1,5 +1,38 @@
 const API_BASE_URL = 'http://localhost:8080';
 
+export const register = async (registrationData) => {
+  const { username, email, password } = registrationData;
+  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, email, password }),
+  });
+
+  const responseBodyText = await response.text();
+
+  if (!response.ok) {
+    console.error("Register API Error Status:", response.status);
+    console.error("Register API Error Body:", responseBodyText);
+    let errorMessage = 'Registration failed';
+    try {
+      const errorData = JSON.parse(responseBodyText);
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      errorMessage = responseBodyText;
+    }
+    throw new Error(errorMessage);
+  }
+
+  try {
+    return JSON.parse(responseBodyText);
+  } catch (e) {
+    console.error("Register API Success, but response was not valid JSON:", responseBodyText);
+    throw new Error('Registration successful, but response was not valid JSON.');
+  }
+};
+
 export const login = async (email, password) => {
   const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: 'POST',

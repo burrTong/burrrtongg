@@ -24,18 +24,10 @@ const LoginPage = () => {
       
       // Store user info for display
       localStorage.setItem('username', userData.username);
-      localStorage.setItem('userId', userData.id);
+      localStorage.setItem('token', userData.token);
 
-      // ตรวจสอบ role จาก response ที่ได้
-      if (userData.role === 'CUSTOMER') {
-        navigate('/home'); // ไปหน้า user
-      } else if (userData.role === 'ADMIN') {
-        setError('Admin accounts should log in via the admin portal.');
-      } else {
-        // กรณีไม่มี role หรือ role ไม่ตรงกับที่คาดหวัง
-        setError('Login successful, but role is undefined.');
-        navigate('/home'); // หรือไปหน้า default
-      }
+      // On successful login, navigate to home
+      navigate('/home');
 
     } catch (err) {
       setError(err.message || 'An error occurred during login.');

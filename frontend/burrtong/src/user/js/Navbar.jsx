@@ -37,7 +37,7 @@ function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem('username');
-    localStorage.removeItem('userId');
+    localStorage.removeItem('token');
     navigate("/"); // กลับหน้า Login
   };
 

@@ -1,34 +1,66 @@
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = '';
 
-export const login = async (email, password) => {
-  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+export const registerAdmin = async (registrationData) => {
+  const { name, email, password } = registrationData;
+  const response = await fetch(`${API_BASE_URL}/api/admin/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ username: email, password }),
+    body: JSON.stringify({ name, email, password }),
   });
 
-  const responseBodyText = await response.text(); // Read body ONCE as text
+  const responseBodyText = await response.text();
 
   if (!response.ok) {
-    console.error("Login API Error Status:", response.status);
-    console.error("Login API Error Body:", responseBodyText);
-    let errorMessage = 'Login failed';
+    console.error("Admin Register API Error Status:", response.status);
+    console.error("Admin Register API Error Body:", responseBodyText);
+    let errorMessage = 'Admin registration failed';
     try {
-      const errorData = JSON.parse(responseBodyText); // Try parsing the text as JSON
+      const errorData = JSON.parse(responseBodyText);
       errorMessage = errorData.message || errorMessage;
     } catch (e) {
-      errorMessage = responseBodyText; // Use raw text if not JSON
+      errorMessage = responseBodyText;
     }
     throw new Error(errorMessage);
   }
 
-  // If response.ok is true, it should be a successful JSON response
   try {
-    return JSON.parse(responseBodyText); // Parse the text as JSON
+    return JSON.parse(responseBodyText);
   } catch (e) {
-    console.error("Login API Success, but response was not valid JSON:", responseBodyText);
-    throw new Error('Login successful, but response was not valid JSON.');
+    console.error("Admin Register API Success, but response was not valid JSON:", responseBodyText);
+    throw new Error('Admin registration successful, but response was not valid JSON.');
+  }
+};
+
+export const login = async (email, password) => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/admin/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const responseBodyText = await response.text();
+
+  if (!response.ok) {
+    console.error("Admin Login API Error Status:", response.status);
+    console.error("Admin Login API Error Body:", responseBodyText);
+    let errorMessage = 'Admin login failed';
+    try {
+      const errorData = JSON.parse(responseBodyText);
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      errorMessage = responseBodyText;
+    }
+    throw new Error(errorMessage);
+  }
+
+  try {
+    return JSON.parse(responseBodyText);
+  } catch (e) {
+    console.error("Admin Login API Success, but response was not valid JSON:", responseBodyText);
+    throw new Error('Admin login successful, but response was not valid JSON.');
   }
 };

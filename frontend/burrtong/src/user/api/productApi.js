@@ -1,6 +1,6 @@
 import Product from '../models/product.js';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = '';
 
 export const getAllProducts = async () => {
   const response = await fetch(`${API_BASE_URL}/api/products`);
