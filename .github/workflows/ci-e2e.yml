@@ -10,6 +10,24 @@ on:
 jobs:
   build-backend:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_DB: demo_db
+      POSTGRES_USER: demo_user
+      POSTGRES_PASSWORD: demo_pass
+      POSTGRES_PORT: '5432'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/demo_db
+      SPRING_DATASOURCE_USERNAME: demo_user
+      SPRING_DATASOURCE_PASSWORD: demo_pass
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: demo_db
+          POSTGRES_USER: demo_user
+          POSTGRES_PASSWORD: demo_pass
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U ${POSTGRES_USER}" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,6 +37,20 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Install postgres client for healthcheck
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Wait for Postgres service
+        run: |
+          echo "Waiting for postgres to accept connections"
+          for i in $(seq 1 30); do
+            if pg_isready -h localhost -p ${POSTGRES_PORT} -U ${POSTGRES_USER}; then
+              echo "postgres is ready"; break
+            fi
+            echo "waiting for postgres... ($i)"; sleep 2
+          done
 
       - name: Grant execute permission for backend/gradlew
         run: |
