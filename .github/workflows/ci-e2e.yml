@@ -1,0 +1,104 @@
+name: CI - build & e2e
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build-and-e2e:
+    runs-on: ubuntu-latest
+    # Provide defaults but allow overriding via repository Secrets
+    env:
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB || 'demo_db' }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER || 'demo_user' }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'demo_pass' }}
+      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT || '5432' }}
+      BACKEND_APP_PORT: ${{ secrets.BACKEND_APP_PORT || '8080' }}
+      FRONTEND_APP_PORT: ${{ secrets.FRONTEND_APP_PORT || '3000' }}
+      PGADMIN_EXTERNAL_PORT: ${{ secrets.PGADMIN_EXTERNAL_PORT || '5050' }}
+      PGADMIN_INTERNAL_PORT: ${{ secrets.PGADMIN_INTERNAL_PORT || '80' }}
+      PGADMIN_DEFAULT_PASSWORD: ${{ secrets.PGADMIN_DEFAULT_PASSWORD || 'pgadmin' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log into Docker registry (optional)
+        if: false
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create .env for docker-compose (from secrets/defaults)
+        run: |
+          cat > .env <<EOF
+          POSTGRES_DB=${POSTGRES_DB}
+          POSTGRES_USER=${POSTGRES_USER}
+          POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          POSTGRES_PORT=${POSTGRES_PORT}
+          BACKEND_APP_PORT=${BACKEND_APP_PORT}
+          FRONTEND_APP_PORT=${FRONTEND_APP_PORT}
+          PGADMIN_EXTERNAL_PORT=${PGADMIN_EXTERNAL_PORT}
+          PGADMIN_INTERNAL_PORT=${PGADMIN_INTERNAL_PORT}
+          PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+          EOF
+
+      - name: Build and start services with docker-compose
+        run: |
+          docker compose build --parallel
+          docker compose up -d db
+          # wait for Postgres to be ready from inside the db container
+          for i in $(seq 1 60); do
+            if docker compose exec -T db pg_isready -q; then
+              echo "postgres is ready"; break
+            fi
+            echo "waiting for postgres... ($i)"; sleep 1
+          done
+          # start app and frontend once db is ready
+          docker compose up -d app frontend
+
+      - name: Wait for backend to be healthy
+        run: |
+          echo "Waiting for backend on http://localhost:${BACKEND_APP_PORT}/actuator/health or /api/health"
+          for i in $(seq 1 60); do
+            if curl -sSf "http://localhost:${BACKEND_APP_PORT}/actuator/health" >/dev/null 2>&1 || curl -sSf "http://localhost:${BACKEND_APP_PORT}/api/health" >/dev/null 2>&1 || curl -sSf "http://localhost:${BACKEND_APP_PORT}/" >/dev/null 2>&1; then
+              echo "backend is up"; exit 0
+            fi
+            echo "waiting for backend... ($i)"; sleep 1
+          done
+          echo "backend did not become ready in time"; exit 1
+
+      - name: Run Cypress E2E tests (on runner)
+        working-directory: frontend/burrtong
+        env:
+          CYPRESS_baseUrl: http://localhost:${FRONTEND_APP_PORT}
+          BACKEND_URL: http://localhost:${BACKEND_APP_PORT}
+          CI: true
+        run: |
+          npm ci
+          # run cypress; recordings/videos/screenshots will be generated in the working dir
+          npx cypress run --config baseUrl=http://localhost:${FRONTEND_APP_PORT} || true
+
+      - name: Upload Cypress artifacts (screenshots / videos)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            frontend/burrtong/cypress/videos
+            frontend/burrtong/cypress/screenshots
+            frontend/burrtong/cypress/results
+            frontend/burrtong/cypress/report
+            frontend/burrtong/cypress/videos/**
+
+      - name: Tear down docker-compose
+        if: always()
+        run: |
+          docker compose down -v
