@@ -11,20 +11,20 @@ jobs:
   build-backend:
     runs-on: ubuntu-latest
     env:
-      POSTGRES_DB: demo_db
-      POSTGRES_USER: demo_user
-      POSTGRES_PASSWORD: demo_pass
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
       POSTGRES_PORT: '5432'
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/demo_db
-      SPRING_DATASOURCE_USERNAME: demo_user
-      SPRING_DATASOURCE_PASSWORD: demo_pass
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/ecommerce
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypass
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: demo_db
-          POSTGRES_USER: demo_user
-          POSTGRES_PASSWORD: demo_pass
+          POSTGRES_DB: ecommerce
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypass
         ports: ['5432:5432']
         options: >-
           --health-cmd="pg_isready -U ${POSTGRES_USER}" --health-interval=10s --health-timeout=5s --health-retries=5
@@ -95,7 +95,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create .env for docker-compose (from secrets/defaults)
+      - name: Create .env for docker-compose (from repo defaults)
         run: |
           cat > .env <<EOF
           POSTGRES_DB=${POSTGRES_DB}
@@ -137,13 +137,11 @@ jobs:
       - name: Run Cypress E2E tests (on runner)
         working-directory: frontend/burrtong
         env:
-          CYPRESS_baseUrl: http://localhost:${FRONTEND_APP_PORT}
-          BACKEND_URL: http://localhost:${BACKEND_APP_PORT}
           CI: true
         run: |
           npm ci
-          # run cypress; recordings/videos/screenshots will be generated in the working dir
-          npx cypress run --config baseUrl=http://localhost:${FRONTEND_APP_PORT} || true
+          # run cypress; pass baseUrl and backend URL using shell-expanded vars
+          npx cypress run --config baseUrl=http://localhost:${FRONTEND_APP_PORT} --env BACKEND_URL=http://localhost:${BACKEND_APP_PORT} || true
 
       - name: Upload Cypress artifacts (screenshots / videos)
         if: always()
