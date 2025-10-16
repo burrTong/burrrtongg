@@ -20,12 +20,18 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew || true
+      - name: Grant execute permission for backend/gradlew
+        run: |
+          echo "Fixing gradlew permission in backend/"
+          chmod +x ./backend/gradlew || true
+          ls -l ./backend/gradlew || true
 
       - name: Build backend (Gradle)
         working-directory: ./backend
         run: |
+          echo "Fixing gradlew permission in backend/ (again)"
+          chmod +x ./gradlew || true
+          ls -l ./gradlew || true
           ./gradlew clean build --no-daemon --stacktrace
 
   build-and-e2e:
