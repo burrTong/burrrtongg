@@ -12,6 +12,7 @@ services:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data   # ✅ persist DB data
+      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro # SQL files placed here run on first init
 
   app:
     build: ./backend
