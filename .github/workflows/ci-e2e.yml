@@ -10,6 +10,24 @@ on:
 jobs:
   build-backend:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_PORT: '5432'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/ecommerce
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypass
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: ecommerce
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypass
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U ${POSTGRES_USER}" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,12 +38,32 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew || true
+      - name: Install postgres client for healthcheck
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Wait for Postgres service
+        run: |
+          echo "Waiting for postgres to accept connections"
+          for i in $(seq 1 30); do
+            if pg_isready -h localhost -p ${POSTGRES_PORT} -U ${POSTGRES_USER}; then
+              echo "postgres is ready"; break
+            fi
+            echo "waiting for postgres... ($i)"; sleep 2
+          done
+
+      - name: Grant execute permission for backend/gradlew
+        run: |
+          echo "Fixing gradlew permission in backend/"
+          chmod +x ./backend/gradlew || true
+          ls -l ./backend/gradlew || true
 
       - name: Build backend (Gradle)
         working-directory: ./backend
         run: |
+          echo "Fixing gradlew permission in backend/ (again)"
+          chmod +x ./gradlew || true
+          ls -l ./gradlew || true
           ./gradlew clean build --no-daemon --stacktrace
 
   build-and-e2e:
@@ -38,7 +76,7 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'demo_pass' }}
       POSTGRES_PORT: ${{ secrets.POSTGRES_PORT || '5432' }}
       BACKEND_APP_PORT: ${{ secrets.BACKEND_APP_PORT || '8080' }}
-      FRONTEND_APP_PORT: ${{ secrets.FRONTEND_APP_PORT || '3000' }}
+      FRONTEND_APP_PORT: ${{ secrets.FRONTEND_APP_PORT || '5173' }}
       PGADMIN_EXTERNAL_PORT: ${{ secrets.PGADMIN_EXTERNAL_PORT || '5050' }}
       PGADMIN_INTERNAL_PORT: ${{ secrets.PGADMIN_INTERNAL_PORT || '80' }}
       PGADMIN_DEFAULT_PASSWORD: ${{ secrets.PGADMIN_DEFAULT_PASSWORD || 'pgadmin' }}
@@ -57,7 +95,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create .env for docker-compose (from secrets/defaults)
+      - name: Create .env for docker-compose (from repo defaults)
         run: |
           cat > .env <<EOF
           POSTGRES_DB=${POSTGRES_DB}
@@ -99,13 +137,11 @@ jobs:
       - name: Run Cypress E2E tests (on runner)
         working-directory: frontend/burrtong
         env:
-          CYPRESS_baseUrl: http://localhost:${FRONTEND_APP_PORT}
-          BACKEND_URL: http://localhost:${BACKEND_APP_PORT}
           CI: true
         run: |
           npm ci
-          # run cypress; recordings/videos/screenshots will be generated in the working dir
-          npx cypress run --config baseUrl=http://localhost:${FRONTEND_APP_PORT} || true
+          # run cypress; pass baseUrl and backend URL using shell-expanded vars
+          npx cypress run --config baseUrl=http://localhost:${FRONTEND_APP_PORT} --env BACKEND_URL=http://localhost:${BACKEND_APP_PORT} || true
 
       - name: Upload Cypress artifacts (screenshots / videos)
         if: always()
