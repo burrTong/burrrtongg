@@ -149,7 +149,7 @@ jobs:
         run: |
           echo "Checking products count in DB"
           # Use a temporary one-off container to run psql against the db service
-          docker run --rm --network host postgres:15 bash -c "until pg_isready -h db -p ${POSTGRES_PORT} -U ${POSTGRES_USER}; do sleep 1; done; PGPASSWORD=${POSTGRES_PASSWORD} psql -h db -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c \"SELECT count(*) FROM products;\""
+          docker run --rm --network demo-repository_default postgres:15 bash -c "until pg_isready -h db -p 5432 -U ${POSTGRES_USER}; do sleep 1; done; PGPASSWORD=${POSTGRES_PASSWORD} psql -h db -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c \"SELECT count(*) FROM products;\""
 
       - name: Wait for backend to be healthy
         run: |
