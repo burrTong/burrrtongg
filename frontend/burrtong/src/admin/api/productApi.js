@@ -9,15 +9,15 @@ export const getAllProducts = async () => {
   return data;
 };
 
-export const createProduct = async (productData) => {
+export const createProduct = async (formData) => {
   const token = localStorage.getItem('authToken');
   const response = await fetch(`${API_BASE_URL}/api/products`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify(productData),
+    body: formData,
   });
 
   if (!response.ok) {
@@ -26,4 +26,29 @@ export const createProduct = async (productData) => {
   }
 
   return await response.json();
+};
+
+export const getAllCategories = async () => {
+  const response = await fetch(`${API_BASE_URL}/api/categories`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch categories');
+  }
+  return await response.json();
+};
+
+export const deleteProduct = async (productId) => {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new Error(errorBody.message || 'Failed to delete product');
+  }
+
+  return true; // Indicate successful deletion
 };

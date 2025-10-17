@@ -2,9 +2,9 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.User;
 import com.example.backend.model.dto.LoginRequest;
-import com.example.backend.model.dto.LoginResponse;
 import com.example.backend.model.dto.RegisterRequest;
 import com.example.backend.service.AuthService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,15 +21,21 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest registerRequest) {
-        User user = authService.register(registerRequest);
-        return ResponseEntity.ok(user);
+    @PostMapping("/register/customer")
+    public ResponseEntity<User> registerCustomer(@RequestBody RegisterRequest registerRequest) {
+        User user = authService.registerCustomer(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    }
+
+    @PostMapping("/register/admin")
+    public ResponseEntity<User> registerAdmin(@RequestBody RegisterRequest registerRequest) {
+        User user = authService.registerAdmin(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        LoginResponse loginResponse = authService.login(loginRequest);
-        return ResponseEntity.ok(loginResponse);
+    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
+        User user = authService.login(loginRequest);
+        return ResponseEntity.ok(user);
     }
 }

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { getAllProducts } from "../api/productApi.js";
+import ProductCard from './ProductCard.jsx'; // Add this line
 import "../css/App.css"; // ใช้ไฟล์เดิม เพิ่มคลาสด้านล่างในข้อ 3
+
+// const API_BASE_URL = 'http://localhost:8080'; // Removed as it's now in ProductCard
 
 const HotProducts = ({ limit = 3 }) => {
   const [products, setProducts] = useState([]);
@@ -29,22 +31,7 @@ const HotProducts = ({ limit = 3 }) => {
       <h2>Hot Products</h2>
       <div className="hot-products-grid">
         {products.map((p) => (
-          <Link
-            key={p.id}
-            to={`/home/products/${p.id}`} // ไปหน้า detail แบบ absolute path
-            className="hot-product-card"
-          >
-            <div className="hot-product-image">
-              <img src={p.mainImage} alt={p.name} />
-            </div>
-            <div className="hot-product-info">
-              <h3>{p.name}</h3>
-              <div className="hot-product-footer">
-                <p className="hot-product-price">{p.getFormattedPrice()}</p>
-                <p className="hot-product-status">{p.status}</p>
-              </div>
-            </div>
-          </Link>
+          <ProductCard key={p.id} product={p} /> // Use ProductCard component
         ))}
       </div>
     </section>

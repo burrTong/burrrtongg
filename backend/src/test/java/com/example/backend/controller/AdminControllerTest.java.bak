@@ -1,0 +1,59 @@
+package com.example.backend.controller;
+
+import com.example.backend.entity.Order;
+import com.example.backend.model.OrderStatus;
+import com.example.backend.service.OrderService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(AdminController.class)
+class AdminControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private OrderService orderService;
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void denyOrder_shouldReturnDeniedOrder_whenAdmin() throws Exception {
+        Order deniedOrder = new Order();
+        deniedOrder.setId(1L);
+        deniedOrder.setStatus(OrderStatus.CANCELED);
+
+        when(orderService.denyOrder(anyLong())).thenReturn(deniedOrder);
+
+        mockMvc.perform(put("/api/admin/orders/{orderId}/deny", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.status").value(OrderStatus.CANCELED.name()));
+    }
+
+    @Test
+    @WithMockUser(roles = "CUSTOMER")
+    void denyOrder_shouldReturnForbidden_whenCustomer() throws Exception {
+        mockMvc.perform(put("/api/admin/orders/{orderId}/deny", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void denyOrder_shouldReturnUnauthorized_whenAnonymous() throws Exception {
+        mockMvc.perform(put("/api/admin/orders/{orderId}/deny", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+}

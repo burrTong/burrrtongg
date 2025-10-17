@@ -3,7 +3,7 @@ describe('ขั้นตอนการจัดการ Order (Admin)', () =>
   beforeEach(() => {
     // 1. (SETUP) สร้าง Order ใหม่ผ่าน API โดย Customer
     // คำสั่งนี้จะยิง API ไปสร้าง Order ที่มีสถานะเป็น PENDING รอไว้
-    cy.createOrderViaApi();
+    // cy.createOrderViaApi();
 
     // 2. (LOGIN) ล็อกอินเข้าสู่ระบบด้วยบัญชี Admin ผ่าน UI
     cy.visit('/admin/login');

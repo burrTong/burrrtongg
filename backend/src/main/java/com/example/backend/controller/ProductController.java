@@ -3,11 +3,15 @@ package com.example.backend.controller;
 import com.example.backend.entity.Product;
 import com.example.backend.service.ProductService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.ResponseEntity;
+import com.example.backend.model.dto.ProductRequest;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
 
     private final ProductService productService;
@@ -27,8 +31,11 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product) { // Removed @AuthenticationPrincipal UserDetails userDetails
-        return productService.createProduct(product); // Removed userDetails parameter
+    public ResponseEntity<Product> createProduct(
+            @RequestPart("product") ProductRequest productRequest,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        Product createdProduct = productService.createProduct(productRequest, imageFile);
+        return ResponseEntity.ok(createdProduct);
     }
 
     @PutMapping("/{id}")

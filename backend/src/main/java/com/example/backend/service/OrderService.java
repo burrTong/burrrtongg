@@ -93,4 +93,20 @@ public class OrderService {
         order.setStatus(status);
         return orderRepository.save(order);
     }
+
+    @Transactional
+    public Order denyOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + orderId));
+
+        // Return product quantities to stock
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+        return orderRepository.save(order);
+    }
 }

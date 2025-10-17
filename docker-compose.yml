@@ -24,6 +24,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:${POSTGRES_PORT}/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - uploads_data:/app/uploads/images # Mount volume for uploaded images
 
   frontend:
     build: ./frontend/burrtong
@@ -49,4 +51,5 @@ services:
 volumes:
   postgres_data:   # ✅ declare the volume
   pgadmin_data:
+  uploads_data: # Declare the volume for uploaded images
 

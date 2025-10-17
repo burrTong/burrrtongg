@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signup } from '../api/authApi'; // Import the signup function
 import '../css/SignupPage.css';
 
 function SignupPage() {
@@ -7,56 +8,55 @@ function SignupPage() {
 
   const [formData, setFormData] = useState({
     email: '',
-    name: '',
     password: '',
-    confirmPassword: '',
-    phone: ''
+    confirmPassword: ''
   });
 
-  const [errors, setErrors] = useState({}); // ✅ เก็บ error ของแต่ละช่อง
+  const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState(''); // For general API errors
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' }); // ลบ error ทันทีที่พิมพ์ใหม่
+    setErrors({ ...errors, [e.target.name]: '' });
+    setGeneralError(''); // Clear general error on input change
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Make handleSubmit async
     e.preventDefault();
     let newErrors = {};
 
     if (!formData.email) newErrors.email = "Please enter your email";
-    if (!formData.name) newErrors.name = "Please enter your name";
     if (!formData.password) newErrors.password = "Please enter your password";
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = "Please enter your confirm password";
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Password and Confirm Password do not match";
     }
-    if (!formData.phone) newErrors.phone = "Please enter your phone";
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      // (TODO: ส่งข้อมูลไป backend ถ้ามี)
-      navigate("/"); // ไปหน้า Login
+      try {
+        await signup(formData.email, formData.password);
+        alert('Registration successful! Please log in.'); // Show success message
+        navigate("/"); // Go to Login page
+      } catch (err) {
+        setGeneralError(err.message || 'An error occurred during registration.');
+      }
     }
   };
 
   return (
     <div className="signup-container">
       <div className="signup-form">
-        <img src="/src/assets/burrtong_logo.png" alt="Burrtong" className="logo" />
+        <img src="/vite.svg" alt="Burrtong" className="logo" />
         <h2>Sign Up</h2>
         <form onSubmit={handleSubmit}>
+          {generalError && <p className="error">{generalError}</p>} {/* Display general API error */}
           <div className="input-group">
             <label>Email</label>
             <input type="email" name="email" value={formData.email} onChange={handleChange} />
             {errors.email && <p className="error">{errors.email}</p>}
-          </div>
-          <div className="input-group">
-            <label>Name</label>
-            <input type="text" name="name" value={formData.name} onChange={handleChange} />
-            {errors.name && <p className="error">{errors.name}</p>}
           </div>
           <div className="input-group">
             <label>Password</label>
@@ -67,11 +67,6 @@ function SignupPage() {
             <label>Confirm Password</label>
             <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} />
             {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
-          </div>
-          <div className="input-group">
-            <label>Phone</label>
-            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} />
-            {errors.phone && <p className="error">{errors.phone}</p>}
           </div>
           <button type="submit" className="signup-button">Sign up</button>
         </form>

@@ -8,8 +8,28 @@
 /* Grid layout for the products */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Use auto-fit */
   gap: 2rem;
+  max-width: 1200px; /* Limit overall width */
+  margin: 0 auto; /* Center the grid */
+}
+
+@media (min-width: 992px) { /* For larger screens, limit to 3 columns */
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) { /* For medium screens, 2 columns */
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) { /* For small screens, 1 column */
+  .products-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 
 /* Individual product card styling */

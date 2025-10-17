@@ -2,15 +2,16 @@ package com.example.backend.service;
 
 import com.example.backend.entity.User;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.exception.UserAlreadyExistsException;
 import com.example.backend.model.Role;
 import com.example.backend.model.dto.LoginRequest;
-import com.example.backend.model.dto.LoginResponse;
 import com.example.backend.model.dto.RegisterRequest;
 import com.example.backend.repository.UserRepository;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -23,26 +24,35 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User register(RegisterRequest registerRequest) {
+    public User registerCustomer(RegisterRequest registerRequest) {
+        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("User with this username already exists");
+        }
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setRole(Role.CUSTOMER); // Default role
+        user.setRole(Role.CUSTOMER);
         return userRepository.save(user);
     }
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public User registerAdmin(RegisterRequest registerRequest) {
+        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("User with this username already exists");
+        }
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setRole(Role.ADMIN);
+        return userRepository.save(user);
+    }
+
+    public User login(LoginRequest loginRequest) {
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + loginRequest.getUsername()));
 
-        // For now, just check if password matches (no encoding)
-        if (!loginRequest.getPassword().equals(user.getPassword())) {
-             throw new RuntimeException("Invalid password"); // Or a more specific exception
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+             throw new BadCredentialsException("Invalid password");
         }
-
-        // If authentication is successful, generate a token (dummy token for now)
-        String token = UUID.randomUUID().toString();
-
-        return new LoginResponse(token, user.getRole(), user.getId(), user.getUsername());
+        return user;
     }
 }
