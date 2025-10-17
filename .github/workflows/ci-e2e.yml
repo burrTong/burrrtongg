@@ -72,8 +72,7 @@ jobs:
     env:
       # keep compose project name stable so volume names are predictable
       COMPOSE_PROJECT_NAME: demo-repository
-    # Provide defaults but allow overriding via repository Secrets
-    env:
+      # Provide defaults but allow overriding via repository Secrets
       POSTGRES_DB: ${{ secrets.POSTGRES_DB || 'demo_db' }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER || 'demo_user' }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'demo_pass' }}
