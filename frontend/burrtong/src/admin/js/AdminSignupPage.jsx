@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signupAdmin } from '../api/authApi'; // Import the signupAdmin function
 import '../../user/css/SignupPage.css';
 
 function AdminSignupPage() {
@@ -12,13 +13,15 @@ function AdminSignupPage() {
   });
 
   const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState(''); // For general API errors
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: '' });
+    setGeneralError(''); // Clear general error on input change
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Make handleSubmit async
     e.preventDefault();
     let newErrors = {};
 
@@ -33,10 +36,13 @@ function AdminSignupPage() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      // TODO: Implement admin registration logic
-      console.log("Admin registration submitted:", formData);
-      alert("Admin registration request sent!");
-      navigate("/admin/login");
+      try {
+        await signupAdmin(formData.email, formData.password);
+        alert('Admin registration successful! Please log in.'); // Show success message
+        navigate("/admin/login"); // Go to Admin Login page
+      } catch (err) {
+        setGeneralError(err.message || 'An error occurred during admin registration.');
+      }
     }
   };
 
@@ -46,6 +52,7 @@ function AdminSignupPage() {
         <img src="/vite.svg" alt="Burrtong" className="logo" />
         <h2>Admin Sign Up</h2>
         <form onSubmit={handleSubmit}>
+          {generalError && <p className="error">{generalError}</p>} {/* Display general API error */}
           <div className="input-group">
             <label>Email</label>
             <input type="email" name="email" value={formData.email} onChange={handleChange} />

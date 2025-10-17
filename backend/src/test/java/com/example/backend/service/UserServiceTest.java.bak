@@ -1,0 +1,94 @@
+package com.example.backend.service;
+
+import com.example.backend.entity.User;
+import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.model.Role;
+import com.example.backend.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private UserService userService;
+
+    private User user1;
+    private User user2;
+
+    @BeforeEach
+    void setUp() {
+        user1 = new User();
+        user1.setId(1L);
+        user1.setUsername("user1@example.com");
+        user1.setPassword("encodedPass1");
+        user1.setRole(Role.CUSTOMER);
+
+        user2 = new User();
+        user2.setId(2L);
+        user2.setUsername("user2@example.com");
+        user2.setPassword("encodedPass2");
+        user2.setRole(Role.ADMIN);
+    }
+
+    @Test
+    void loadUserByUsername_shouldReturnUserDetails_whenUserFound() {
+        // The repository should return a User object
+        User userReturnedByRepo = new User();
+        userReturnedByRepo.setId(1L);
+        userReturnedByRepo.setUsername("user1@example.com");
+        userReturnedByRepo.setPassword("encodedPass1");
+        userReturnedByRepo.setRole(Role.CUSTOMER);
+
+        when(userRepository.findByUsername("user1@example.com")).thenReturn(Optional.of(userReturnedByRepo));
+
+        UserDetails userDetails = userService.loadUserByUsername("user1@example.com");
+
+        assertNotNull(userDetails);
+        assertEquals(userReturnedByRepo.getUsername(), userDetails.getUsername());
+        assertEquals(userReturnedByRepo.getPassword(), userDetails.getPassword());
+        assertTrue(userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_" + userReturnedByRepo.getRole().name())));
+        verify(userRepository, times(1)).findByUsername("user1@example.com");
+    }
+
+    @Test
+    void loadUserByUsername_shouldThrowUsernameNotFoundException_whenUserNotFound() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername("nonexistent@example.com"));
+        verify(userRepository, times(1)).findByUsername("nonexistent@example.com");
+    }
+
+    @Test
+    void getAllUsers_shouldReturnAllUsers() {
+        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
+
+        List<User> users = userService.getAllUsers();
+
+        assertNotNull(users);
+        assertEquals(2, users.size());
+        assertTrue(users.contains(user1));
+        assertTrue(users.contains(user2));
+        verify(userRepository, times(1)).findAll();
+    }
+}

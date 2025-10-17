@@ -1,50 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { getAllProducts } from '../api/productApi.js';
+import ProductCard from './ProductCard.jsx'; // Add this line
 import '../css/Products.css';
+
+// const API_BASE_URL = 'http://localhost:8080'; // Removed as it's now in ProductCard
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const fetchedProducts = await getAllProducts();
-        setProducts(fetchedProducts);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
+        const data = await getAllProducts();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProducts();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return <div>Loading products...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
-    <div className="products-page-container">
-      <div className="products-grid">
-        {products.map((product) => (
-          <div key={product.id} className="product-card">
-            <Link to={`${product.id}`}>
-              <div className="product-image-container">
-                <img src={product.mainImage} alt={product.name} className="product-image" />
-              </div>
-              <div className="product-info-card">
-                <h3>{product.name}</h3>
-                <div className="product-footer">
-                  <p className="product-price">{product.getFormattedPrice()}</p>
-                  <p className={`product-status ${product.stock === 0 ? 'out-of-stock' : ''}`}>
-                    {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        ))}
-      </div>
+    <div className="products-grid"> {/* Changed class name */}
+      {products.map(product => (
+        <ProductCard key={product.id} product={product} /> // Use ProductCard component
+      ))}
     </div>
   );
 };

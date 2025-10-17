@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getAllCategories } from '../api/productApi'; // Import getAllCategories
 import '../css/NewProductModal.css'; // We will create this file for styling
 
 function NewProductModal({ isOpen, onClose, onCreateProduct }) {
@@ -6,24 +7,59 @@ function NewProductModal({ isOpen, onClose, onCreateProduct }) {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
+  const [size, setSize] = useState(''); // Add this line
+  const [imageFile, setImageFile] = useState(null); // New state for image file
+  const [categories, setCategories] = useState([]); // New state for categories
+  const [selectedCategory, setSelectedCategory] = useState(''); // New state for selected category
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      const fetchCategories = async () => {
+        try {
+          const fetchedCategories = await getAllCategories();
+          setCategories(fetchedCategories);
+          if (fetchedCategories.length > 0) {
+            setSelectedCategory(fetchedCategories[0].id); // Select first category by default
+          }
+        } catch (err) {
+          console.error("Failed to fetch categories:", err);
+          setError('Failed to load categories.');
+        }
+      };
+      fetchCategories();
+    }
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;
   }
 
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !price || !stock) {
-      setError('Name, price, and stock are required.');
+    if (!name || !price || !stock || !selectedCategory) {
+      setError('Name, price, stock, and category are required.');
       return;
     }
-    onCreateProduct({
+
+    const formData = new FormData();
+    formData.append('product', new Blob([JSON.stringify({
       name,
       description,
       price: parseFloat(price),
       stock: parseInt(stock, 10),
-    });
+      size, // Add this line
+      categoryId: parseInt(selectedCategory, 10),
+    })], { type: 'application/json' }));
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    onCreateProduct(formData);
   };
 
   return (
@@ -65,10 +101,41 @@ function NewProductModal({ isOpen, onClose, onCreateProduct }) {
           <div className="form-group">
             <label htmlFor="stock">Stock</label>
             <input
-              id="stock"
-              type="number"
+              id="stock"              type="number"
               value={stock}
               onChange={(e) => setStock(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="size">Size</label>
+            <input
+              id="size"
+              type="text"
+              value={size}
+              onChange={(e) => setSize(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="category">Category</label>
+            <select
+              id="category"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="image">Product Image</label>
+            <input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
             />
           </div>
           <button type="submit" className="modal-submit-btn">Create Product</button>

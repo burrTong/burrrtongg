@@ -40,7 +40,8 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id) {
-        // We might want to add logic here to check if products are using this category
+        categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
         categoryRepository.deleteById(id);
     }
 }

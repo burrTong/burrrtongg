@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import Product from '../models/product.js';
 import { createOrder } from '../api/orderApi.js';
 
+const API_BASE_URL = 'http://localhost:8080';
+
 const Cart = ({ cart, setCart }) => {
   const [checkoutStatus, setCheckoutStatus] = useState('idle'); // idle, success, error
 
@@ -69,15 +71,15 @@ const Cart = ({ cart, setCart }) => {
         <div className="cart-items">
           <div className="cart-header">
             <div></div>
-            <div>ราคาสินค้า</div>
-            <div>จำนวน</div>
+            <div>Price</div>
+            <div>Quantity</div>
           </div>
           {cart.map(item => {
             const product = new Product(item);
             return (
               <div className="cart-item" key={item.id}>
                 <div className="cart-item-details">
-                  <img src={product.mainImage} alt={product.name} />
+                  <img src={`${API_BASE_URL}${product.imageUrl || '/assets/product.png'}`} alt={product.name} />
                   <p>{product.name}</p>
                 </div>
                 <div className="cart-item-price">{product.getFormattedPrice()}</div>
@@ -91,7 +93,7 @@ const Cart = ({ cart, setCart }) => {
           })}
         </div>
         <div className="cart-summary">
-          <h2>ราคารวมสินค้า</h2>
+          <h2>Order Summary</h2>
           <div className="summary-row">
             <span>subtotal</span>
             <span>{getTotal().toLocaleString()}.-</span>
@@ -109,12 +111,12 @@ const Cart = ({ cart, setCart }) => {
             onClick={handleCheckout} 
             disabled={checkoutStatus === 'success'}
           >
-            {checkoutStatus === 'success' ? 'Order Placed!' : 'ชำระเงิน'}
+            {checkoutStatus === 'success' ? 'Order Placed!' : 'Checkout'}
           </button>
         </div>
       </div>
       <div className="back-link">
-        {/* อัปเดตลิงก์กลับไปหน้า products */}
+        {/* Update link back to products page */}
         <Link to="/home/products">←</Link>
       </div>
     </div>

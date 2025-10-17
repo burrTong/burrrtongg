@@ -64,3 +64,36 @@ export const getAllOrders = async () => {
     throw new Error('Failed to fetch orders, but response was not valid JSON.');
   }
 };
+
+export const signup = async (email, password) => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/register/customer`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username: email, password }),
+  });
+
+  const responseBodyText = await response.text(); // Read body ONCE as text
+
+  if (!response.ok) {
+    console.error("Signup API Error Status:", response.status);
+    console.error("Signup API Error Body:", responseBodyText);
+    let errorMessage = 'Signup failed';
+    try {
+      const errorData = JSON.parse(responseBodyText); // Try parsing the text as JSON
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      errorMessage = responseBodyText; // Use raw text if not JSON
+    }
+    throw new Error(errorMessage);
+  }
+
+  // If response.ok is true, it should be a successful JSON response
+  try {
+    return JSON.parse(responseBodyText); // Parse the text as JSON
+  } catch (e) {
+    console.error("Signup API Success, but response was not valid JSON:", responseBodyText);
+    throw new Error('Signup successful, but response was not valid JSON.');
+  }
+};

@@ -105,6 +105,21 @@
   text-align: left;
 }
 
+.product-thumbnail {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.product-table th,
+.product-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
 .product-table th {
   background: #f8f9fa;
   font-weight: 600;
@@ -311,4 +326,19 @@
 .logout-btn:hover {
   background: #e94560;
   color: #fff;
+}
+
+.delete-product-btn {
+  background-color: #dc3545; /* Red color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-product-btn:hover {
+  background-color: #c82333; /* Darker red on hover */
 }
