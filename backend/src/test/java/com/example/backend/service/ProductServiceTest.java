@@ -36,6 +36,8 @@ class ProductServiceTest {
     private UserRepository userRepository;
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private com.example.backend.repository.OrderItemRepository orderItemRepository;
 
     @InjectMocks
     private ProductService productService;
@@ -70,6 +72,9 @@ class ProductServiceTest {
         category = new Category();
         category.setId(1L);
         category.setName("Electronics");
+
+    // Note: don't globally stub orderItemRepository here to avoid unnecessary stubbing exceptions.
+    // Tests that need orderItemRepository will stub it explicitly.
 
         // Mock the UPLOAD_DIR creation in ProductService constructor
         try {
@@ -256,11 +261,15 @@ class ProductServiceTest {
     @Test
     void deleteProduct_shouldDeleteProduct_whenFound() {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product1));
-        doNothing().when(productRepository).deleteById(1L);
+        // Stub orderItemRepository for this test only
+        when(orderItemRepository.findByProduct(product1)).thenReturn(java.util.Collections.emptyList());
+        doNothing().when(productRepository).delete(product1);
 
         productService.deleteProduct(1L);
 
-        verify(productRepository, times(1)).deleteById(1L);
+        verify(orderItemRepository, times(1)).findByProduct(product1);
+        verify(orderItemRepository, times(1)).deleteAll(java.util.Collections.emptyList());
+        verify(productRepository, times(1)).delete(product1);
     }
 
     @Test
