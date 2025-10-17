@@ -98,19 +98,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create .env for docker-compose (from repo defaults)
+      - name: Use repository .env if present (otherwise create from secrets/defaults)
         run: |
-          cat > .env <<EOF
-          POSTGRES_DB=${POSTGRES_DB}
-          POSTGRES_USER=${POSTGRES_USER}
-          POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-          POSTGRES_PORT=${POSTGRES_PORT}
-          BACKEND_APP_PORT=${BACKEND_APP_PORT}
-          FRONTEND_APP_PORT=${FRONTEND_APP_PORT}
-          PGADMIN_EXTERNAL_PORT=${PGADMIN_EXTERNAL_PORT}
-          PGADMIN_INTERNAL_PORT=${PGADMIN_INTERNAL_PORT}
-          PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-          EOF
+          if [ -f .env ]; then
+            echo "Found repository .env — using it"
+            echo "--- .env contents ---"
+            sed -n '1,200p' .env
+          else
+            echo "No repository .env found — creating .env from secrets/defaults"
+            cat > .env <<EOF
+POSTGRES_DB=${POSTGRES_DB}
+POSTGRES_USER=${POSTGRES_USER}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+POSTGRES_PORT=${POSTGRES_PORT}
+BACKEND_APP_PORT=${BACKEND_APP_PORT}
+FRONTEND_APP_PORT=${FRONTEND_APP_PORT}
+PGADMIN_EXTERNAL_PORT=${PGADMIN_EXTERNAL_PORT}
+PGADMIN_INTERNAL_PORT=${PGADMIN_INTERNAL_PORT}
+PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+EOF
+          fi
 
       - name: Build and start services with docker-compose
         run: |
@@ -140,6 +147,12 @@ jobs:
           done
           # start app and frontend once db is ready
           docker compose up -d app frontend
+
+      - name: Verify DB initialized (products count)
+        run: |
+          echo "Checking products count in DB"
+          # Use a temporary one-off container to run psql against the db service
+          docker run --rm --network host postgres:15 bash -c "until pg_isready -h db -p ${POSTGRES_PORT} -U ${POSTGRES_USER}; do sleep 1; done; PGPASSWORD=${POSTGRES_PASSWORD} psql -h db -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c \"SELECT count(*) FROM products;\""
 
       - name: Wait for backend to be healthy
         run: |
