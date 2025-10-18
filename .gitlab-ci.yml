@@ -1,0 +1,66 @@
+# This file defines the CI/CD pipeline for GitLab.
+
+variables:
+  # Define image names using GitLab's predefined variables.
+  # The images will be stored in the project's container registry.
+  BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+  FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
+
+stages:
+  - build_and_push
+  - deploy
+
+# This job builds the backend Docker image and pushes it to the registry.
+build_and_push_backend:
+  stage: build_and_push
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    # Login to the GitLab container registry.
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - docker build -t $BACKEND_IMAGE ./backend
+    - docker push $BACKEND_IMAGE
+
+# This job builds the frontend Docker image and pushes it to the registry.
+build_and_push_frontend:
+  stage: build_and_push
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - docker build -t $FRONTEND_IMAGE -f ./frontend/burrtong/Dockerfile ./frontend/burrtong
+    - docker push $FRONTEND_IMAGE
+
+# This job deploys the application to the Kubernetes cluster.
+# It requires a Kubernetes cluster to be connected to the project in GitLab.
+deploy_to_k8s:
+  stage: deploy
+  image: dibi/kubectl-envsubst:v1.2.0 # Image with kubectl and envsubst
+  variables:
+    KUBECONFIG: $KUBE_CONFIG # Tell kubectl to use the file variable for configuration.
+  script:
+    # Substitute the placeholder image names in the deployment files with the actual image names.
+    - envsubst < k8s/backend.yml > k8s/backend.processed.yml
+    - envsubst < k8s/frontend.yml > k8s/frontend.processed.yml
+    
+    # Create the PostgreSQL secret dynamically from GitLab CI/CD variables.
+    # This is more secure than storing secrets in Git.
+    - echo "Creating kubernetes secret..."
+    - |
+      kubectl create secret generic postgres-secret \
+        --from-literal=POSTGRES_DB="$POSTGRES_DB" \
+        --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+        --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+        --dry-run=client -o yaml | kubectl apply -f -
+
+    # Apply all Kubernetes manifests.
+    # The KUBECONFIG environment variable is automatically provided by GitLab's K8s integration.
+    - kubectl apply -f k8s/persistent-volumes.yml
+    - kubectl apply -f k8s/postgres.yml
+    - kubectl apply -f k8s/backend.processed.yml # Apply the processed file
+    - kubectl apply -f k8s/frontend.processed.yml # Apply the processed file
+    - kubectl apply -f k8s/ingress.yml
