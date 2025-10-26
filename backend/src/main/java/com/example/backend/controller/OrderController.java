@@ -42,4 +42,9 @@ public class OrderController {
     public Order updateOrderStatus(@PathVariable Long id, @RequestBody OrderStatus status) {
         return orderService.updateOrderStatus(id, status);
     }
+
+    @PutMapping("/{id}/deny")
+    public Order denyOrder(@PathVariable Long id) {
+        return orderService.denyOrder(id);
+    }
 }

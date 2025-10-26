@@ -53,3 +53,26 @@ export const updateOrderStatus = async (orderId, status) => {
 
   return await response.json();
 };
+
+export const denyOrder = async (orderId) => {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/deny`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to deny order';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      errorMessage = await response.text();
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+};

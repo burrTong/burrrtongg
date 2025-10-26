@@ -10,4 +10,5 @@ RUN gradle clean build -x test
 FROM openjdk:21-jdk-slim
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /app/src/main/resources/ ./src/main/resources/
 ENTRYPOINT ["java","-jar","app.jar"]

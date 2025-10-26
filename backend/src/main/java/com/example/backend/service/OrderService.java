@@ -12,6 +12,8 @@ import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +22,8 @@ import java.util.Optional;
 
 @Service
 public class OrderService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
@@ -96,17 +100,34 @@ public class OrderService {
 
     @Transactional
     public Order denyOrder(Long orderId) {
+        logger.info("Attempting to deny order with ID: {}", orderId);
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + orderId));
+                .orElseThrow(() -> {
+                    logger.error("Order not found with id {}", orderId);
+                    return new ResourceNotFoundException("Order not found with id " + orderId);
+                });
 
         // Return product quantities to stock
         for (OrderItem item : order.getOrderItems()) {
-            Product product = item.getProduct();
-            product.setStock(product.getStock() + item.getQuantity());
+            Long productId = item.getProduct().getId();
+            Integer quantityToReturn = item.getQuantity();
+
+            logger.info("Processing OrderItem - Product ID: {}, Quantity to return: {}", productId, quantityToReturn);
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> {
+                        logger.error("Product not found with id {} for order item", productId);
+                        return new ResourceNotFoundException("Product not found with id " + productId);
+                    });
+
+            logger.info("Product {} - Stock before update: {}", productId, product.getStock());
+            product.setStock(product.getStock() + quantityToReturn);
             productRepository.save(product);
+            logger.info("Product {} - Stock after update: {}", productId, product.getStock());
         }
 
         order.setStatus(OrderStatus.CANCELED);
+        logger.info("Order {} status set to CANCELED. Saving order.", orderId);
         return orderRepository.save(order);
     }
 }

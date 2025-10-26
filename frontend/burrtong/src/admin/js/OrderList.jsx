@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAllOrders, updateOrderStatus } from '../api/orderApi'; // Import updateOrderStatus
+import { getAllOrders, updateOrderStatus, denyOrder } from '../api/orderApi'; // Import denyOrder
 
 function OrderList() {
   const [orders, setOrders] = useState([]);
@@ -41,6 +41,17 @@ function OrderList() {
     } catch (err) {
       console.error(`Failed to update order ${orderId} to ${newStatus}:`, err);
       alert(`Failed to update order status: ${err.message}`);
+    }
+  };
+
+  const handleDenyOrder = async (orderId) => {
+    try {
+      await denyOrder(orderId);
+      // Refresh the order list after successful denial
+      fetchOrders();
+    } catch (err) {
+      console.error(`Failed to deny order ${orderId}:`, err);
+      alert(`Failed to deny order: ${err.message}`);
     }
   };
 
@@ -106,7 +117,7 @@ function OrderList() {
                           Accept
                         </button>
                         <button 
-                          onClick={() => handleUpdateStatus(order.id, 'CANCELED')}
+                          onClick={() => handleDenyOrder(order.id)}
                           className="action-btn btn-cancel"
                         >
                           Deny
