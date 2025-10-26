@@ -229,17 +229,16 @@ class ProductServiceTest {
 
     @Test
     void updateProduct_shouldUpdateProduct_whenFound() {
-        Product productDetails = new Product();
-        productDetails.setName("Updated Name");
-        productDetails.setDescription("Updated Description");
-        productDetails.setPrice(15.0);
-        productDetails.setStock(110);
-        productDetails.setImageUrl("/updated/image.png");
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setName("Updated Name");
+        productRequest.setDescription("Updated Description");
+        productRequest.setPrice(15.0);
+        productRequest.setStock(110);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product1));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Product updatedProduct = productService.updateProduct(1L, productDetails);
+        Product updatedProduct = productService.updateProduct(1L, productRequest, null);
 
         assertNotNull(updatedProduct);
         assertEquals("Updated Name", updatedProduct.getName());
@@ -250,10 +249,10 @@ class ProductServiceTest {
 
     @Test
     void updateProduct_shouldThrowResourceNotFoundException_whenNotFound() {
-        Product productDetails = new Product();
+        ProductRequest productRequest = new ProductRequest();
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> productService.updateProduct(1L, productDetails));
+        assertThrows(ResourceNotFoundException.class, () -> productService.updateProduct(1L, productRequest, null));
         verify(productRepository, times(1)).findById(1L);
         verify(productRepository, never()).save(any(Product.class));
     }

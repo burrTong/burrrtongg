@@ -328,6 +328,22 @@
   color: #fff;
 }
 
+.edit-product-btn {
+  background-color: #007bff; /* Blue color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  margin-right: 8px; /* Add some space between buttons */
+}
+
+.edit-product-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
 .delete-product-btn {
   background-color: #dc3545; /* Red color */
   color: white;

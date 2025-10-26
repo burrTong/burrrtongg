@@ -28,6 +28,24 @@ export const createProduct = async (formData) => {
   return await response.json();
 };
 
+export const updateProduct = async (productId, formData) => {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new Error(errorBody.message || 'Failed to update product');
+  }
+
+  return await response.json();
+};
+
 export const getAllCategories = async () => {
   const response = await fetch(`${API_BASE_URL}/api/categories`);
   if (!response.ok) {

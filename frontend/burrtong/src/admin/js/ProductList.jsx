@@ -3,15 +3,17 @@ import React, { useState, useEffect } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 
-import { getAllProducts, createProduct, deleteProduct } from "../api/productApi";
+import { getAllProducts, createProduct, deleteProduct, updateProduct } from "../api/productApi";
 
 import NewProductModal from "./NewProductModal";
+
+import EditProductModal from "./EditProductModal";
 
 import '../css/ProductList.css';
 
 
 
-const API_BASE_URL = 'http://localhost:8080'; // Define API base URL
+const API_BASE_URL = 'http://localhost:8080';
 
 
 
@@ -23,7 +25,11 @@ function ProductList() {
 
   const [error, setError] = useState(null);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const [editingProduct, setEditingProduct] = useState(null);
 
   const navigate = useNavigate();
 
@@ -91,13 +97,47 @@ function ProductList() {
 
       setProducts([newProduct, ...products]);
 
-      setIsModalOpen(false);
+      setIsNewModalOpen(false);
 
     } catch (err) {
 
       console.error("Failed to create product:", err);
 
-      alert(err.message); 
+      alert(err.message);
+
+    }
+
+  };
+
+
+
+  const handleEditProduct = (product) => {
+
+    setEditingProduct(product);
+
+    setIsEditModalOpen(true);
+
+  };
+
+
+
+  const handleUpdateProduct = async (productId, productData) => {
+
+    try {
+
+      const updatedProduct = await updateProduct(productId, productData);
+
+      setProducts(products.map(p => p.id === productId ? updatedProduct : p));
+
+      setIsEditModalOpen(false);
+
+      setEditingProduct(null);
+
+    } catch (err) {
+
+      console.error("Failed to update product:", err);
+
+      alert(err.message);
 
     }
 
@@ -106,16 +146,27 @@ function ProductList() {
 
 
   const handleDeleteProduct = async (productId) => {
+
     if (window.confirm(`Are you sure you want to delete product with ID: ${productId}? This will also delete any associated order items.`)) {
+
       try {
-        await deleteProduct(productId); // Call the new deleteProduct API function
-        setProducts(products.filter(product => product.id !== productId)); // Update state
+
+        await deleteProduct(productId);
+
+        setProducts(products.filter(product => product.id !== productId));
+
         alert('Product deleted successfully!');
+
       } catch (err) {
+
         console.error("Failed to delete product:", err);
+
         alert(err.message);
+
       }
+
     }
+
   };
 
 
@@ -128,7 +179,7 @@ function ProductList() {
 
         name: product.name || 'No Name',
 
-        stock: product.stock || 0, // Use actual stock
+        stock: product.stock || 0,
 
         price: product.price || 0,
 
@@ -136,7 +187,7 @@ function ProductList() {
 
         createdAt: product.createdAt || new Date().toISOString(),
 
-        imageUrl: product.imageUrl || '/assets/product.png', // Default image if none
+        imageUrl: product.imageUrl || '/assets/product.png',
 
     };
 
@@ -168,7 +219,7 @@ function ProductList() {
 
                 <span className={`status ${productModel.stock > 0 ? 'status-available' : 'status-out-of-stock'}`}>
 
-                    {productModel.stock} {/* Display stock number */}
+                    {productModel.stock}
 
                 </span>
 
@@ -181,12 +232,31 @@ function ProductList() {
             <td>{new Date(productModel.createdAt).toLocaleDateString()}</td>
 
             <td>
+
                 <button 
-                    className="delete-product-btn" 
-                    onClick={() => handleDeleteProduct(productModel.id)}
+
+                    className="edit-product-btn" 
+
+                    onClick={() => handleEditProduct(product)}
+
                 >
-                    Delete
+
+                    Edit
+
                 </button>
+
+                <button 
+
+                    className="delete-product-btn" 
+
+                    onClick={() => handleDeleteProduct(productModel.id)}
+
+                >
+
+                    Delete
+
+                </button>
+
             </td>
 
         </tr>
@@ -209,11 +279,9 @@ function ProductList() {
 
           <ul>
 
-            <li><Link to="/admin">📦Products’ List</Link></li>
+            <li><Link to="/admin/products">📦Products’ List</Link></li>
 
             <li><Link to="/admin/orders">📋Orders’ List</Link></li>
-
-            {/* <li><Link to="/admin/analytics">📊Analytics</Link></li> */}
 
           </ul>
 
@@ -247,7 +315,7 @@ function ProductList() {
 
           </div>
 
-          <button onClick={() => setIsModalOpen(true)} className="new-product-btn">
+          <button onClick={() => setIsNewModalOpen(true)} className="new-product-btn">
 
             + New Product
 
@@ -307,13 +375,37 @@ function ProductList() {
 
       <NewProductModal 
 
-        isOpen={isModalOpen} 
+        isOpen={isNewModalOpen} 
 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={() => setIsNewModalOpen(false)} 
 
         onCreateProduct={handleCreateProduct}
 
       />
+
+
+
+      {editingProduct && (
+
+        <EditProductModal
+
+          isOpen={isEditModalOpen}
+
+          onClose={() => {
+
+            setIsEditModalOpen(false);
+
+            setEditingProduct(null);
+
+          }}
+
+          product={editingProduct}
+
+          onUpdateProduct={handleUpdateProduct}
+
+        />
+
+      )}
 
     </div>
 
