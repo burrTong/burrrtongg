@@ -78,5 +78,6 @@
 }
 
 .product-status.out-of-stock {
-  background-color: #dc3545; /* Red */
+  background-color: transparent; /* Transparent background */
+  color: #dc3545; /* Red text */
 }

@@ -44,7 +44,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       {/* Logo */}
-      <div className="logo">Burtong</div>
+      <Link to="/home" className="logo">Burtong</Link>
 
       {/* Search (ซ่อนอัตโนมัติบนมือถือด้วย CSS; ไม่รวมในเมนู) */}
       <div className="search-container">

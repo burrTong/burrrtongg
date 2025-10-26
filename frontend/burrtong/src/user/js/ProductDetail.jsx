@@ -99,6 +99,13 @@ const ProductDetail = ({ cart, setCart }) => {
 
           {product.size && <p className="product-size">Size: {product.size}</p>}
 
+          {product.description && (
+            <div className="product-description">
+              <h3>Description</h3>
+              <p>{product.description}</p>
+            </div>
+          )}
+
           <div className="quantity-selector">
             <p className="quantity-label">Quantity</p>
             <div className="quantity-controls">
