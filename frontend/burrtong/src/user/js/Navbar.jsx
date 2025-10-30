@@ -65,6 +65,7 @@ function Navbar() {
         <Link to="/home">Home</Link>
         <Link to="/home/products">Products</Link>
         <Link to="/home/cart">Shopping Cart</Link>
+        <Link to="/home/orders">My Orders</Link>
       </div>
 
       <div className="avatar-wrapper" ref={avatarRef}>
@@ -112,6 +113,7 @@ function Navbar() {
             <Link to="/home" onClick={() => setMobileOpen(false)}>Home</Link>
             <Link to="/home/products" onClick={() => setMobileOpen(false)}>Products</Link>
             <Link to="/home/cart" onClick={() => setMobileOpen(false)}>Shopping Cart</Link>
+            <Link to="/home/orders" onClick={() => setMobileOpen(false)}>My Orders</Link>
 
             <div className="section-title">{username ? username : 'Account'}</div>
             <button className="danger" onClick={() => { setMobileOpen(false); handleLogout(); }}>

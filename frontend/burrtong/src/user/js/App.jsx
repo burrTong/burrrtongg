@@ -5,6 +5,7 @@ import HomePage from "./HomePage.jsx";
 import Products from "./Products.jsx";
 import ProductDetail from "./ProductDetail.jsx";
 import Cart from "./Cart.jsx";
+import OrderHistory from "./OrderHistory.jsx";
 
 // สไตล์: ให้ Navbar.css มาทีหลังสุดเพื่อครอบสไตล์
 import "../css/index.css";   // base reset
@@ -35,6 +36,8 @@ function App() {
             path="cart"
             element={<Cart cart={cart} setCart={setCart} />}
           />
+          {/* /home/orders */}
+          <Route path="orders" element={<OrderHistory />} />
         </Routes>
       </div>
     </>

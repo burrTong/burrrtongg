@@ -16,3 +16,22 @@ export const createOrder = async (orderRequest) => {
 
   return await response.json();
 };
+
+export const getOrdersByCustomerId = async (customerId) => {
+  console.log("Fetching orders for customerId:", customerId);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/orders/customer/${customerId}`);
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error fetching orders:", errorData);
+      throw new Error(errorData.message || 'Failed to fetch orders');
+    }
+    const data = await response.json();
+    console.log("Orders data:", data);
+    return data;
+  } catch (error) {
+    console.error("An error occurred during fetch:", error);
+    throw error;
+  }
+};
