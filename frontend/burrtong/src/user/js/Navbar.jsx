@@ -45,7 +45,8 @@ function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/home/search?q=${searchQuery}`);
+      const encodedQuery = encodeURIComponent(searchQuery);
+      navigate(`/home/search?q=${encodedQuery}`);
     }
   };
 

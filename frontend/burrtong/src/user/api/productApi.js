@@ -21,7 +21,8 @@ export const getProductById = async (id) => {
 };
 
 export const searchProducts = async (name) => {
-  const response = await fetch(`${API_BASE_URL}/api/products/search?name=${name}`);
+  const encodedName = encodeURIComponent(name);
+  const response = await fetch(`${API_BASE_URL}/api/products/search?name=${encodedName}`);
   if (!response.ok) {
     throw new Error(`Failed to search for products with name ${name}`);
   }
