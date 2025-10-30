@@ -6,6 +6,7 @@ function Navbar() {
   const [open, setOpen] = useState(false);              // desktop avatar dropdown
   const [mobileOpen, setMobileOpen] = useState(false);  // mobile menu
   const [username, setUsername] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const avatarRef = useRef(null);
   const mobileWrapRef = useRef(null);
   const navigate = useNavigate();
@@ -41,14 +42,21 @@ function Navbar() {
     navigate("/"); // กลับหน้า Login
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/home/search?q=${searchQuery}`);
+    }
+  };
+
   return (
     <nav className="navbar">
       {/* Logo */}
       <Link to="/home" className="logo">Burtong</Link>
 
       {/* Search (ซ่อนอัตโนมัติบนมือถือด้วย CSS; ไม่รวมในเมนู) */}
-      <div className="search-container">
-        <button className="search-btn" aria-label="Search">
+      <form className="search-container" onSubmit={handleSearch}>
+        <button className="search-btn" aria-label="Search" type="submit">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 
                      1.398h-.001l3.85 3.85a1 1 0 0 0 
@@ -57,8 +65,14 @@ function Navbar() {
                      5.5 5.5 0 0 1 0 11z" />
           </svg>
         </button>
-        <input type="text" placeholder="search" className="search-box" />
-      </div>
+        <input 
+          type="text" 
+          placeholder="search" 
+          className="search-box" 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </form>
 
       {/* Desktop: Links + Avatar */}
       <div className="nav-links">

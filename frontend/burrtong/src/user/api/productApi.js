@@ -19,3 +19,12 @@ export const getProductById = async (id) => {
   const data = await response.json();
   return new Product(data);
 };
+
+export const searchProducts = async (name) => {
+  const response = await fetch(`${API_BASE_URL}/api/products/search?name=${name}`);
+  if (!response.ok) {
+    throw new Error(`Failed to search for products with name ${name}`);
+  }
+  const data = await response.json();
+  return data.map(p => new Product(p));
+};

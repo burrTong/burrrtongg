@@ -6,6 +6,7 @@ import Products from "./Products.jsx";
 import ProductDetail from "./ProductDetail.jsx";
 import Cart from "./Cart.jsx";
 import OrderHistory from "./OrderHistory.jsx";
+import SearchResults from "./SearchResults.jsx";
 
 // สไตล์: ให้ Navbar.css มาทีหลังสุดเพื่อครอบสไตล์
 import "../css/index.css";   // base reset
@@ -38,6 +39,8 @@ function App() {
           />
           {/* /home/orders */}
           <Route path="orders" element={<OrderHistory />} />
+          {/* /home/search */}
+          <Route path="search" element={<SearchResults />} />
         </Routes>
       </div>
     </>

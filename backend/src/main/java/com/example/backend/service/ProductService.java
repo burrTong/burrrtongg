@@ -51,6 +51,10 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
     }
 
+    public List<Product> searchProducts(String name) {
+        return productRepository.findByNameContainingIgnoreCase(name);
+    }
+
     public Product createProduct(ProductRequest productRequest, MultipartFile imageFile) {
         Product product = new Product();
         product.setName(productRequest.getName());
