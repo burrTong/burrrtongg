@@ -69,7 +69,7 @@ function OrderList() {
           <ul>
             <li><Link to="/admin/products">📦Products’ List</Link></li>
             <li><Link to="/admin/orders">📋Orders’ List</Link></li>
-            {/* <li><Link to="/admin/analytics">📊Analytics</Link></li> */}
+            <li><Link to="/admin/coupons">🎟️Coupons’ List</Link></li>
           </ul>
         </div>
         <div className="sidebar-footer">

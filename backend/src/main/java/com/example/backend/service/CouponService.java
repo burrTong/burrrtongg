@@ -23,4 +23,8 @@ public class CouponService {
         return couponRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException("Coupon not found with code " + code));
     }
+
+    public java.util.List<Coupon> getAllCoupons() {
+        return couponRepository.findAll();
+    }
 }

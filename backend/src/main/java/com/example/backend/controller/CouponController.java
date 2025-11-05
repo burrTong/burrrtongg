@@ -5,6 +5,8 @@ import com.example.backend.entity.Coupon;
 import com.example.backend.service.CouponService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/coupons")
 public class CouponController {
@@ -23,5 +25,10 @@ public class CouponController {
     @GetMapping("/{code}")
     public Coupon getCouponByCode(@PathVariable String code) {
         return couponService.getCouponByCode(code);
+    }
+
+    @GetMapping
+    public List<Coupon> getAllCoupons() {
+        return couponService.getAllCoupons();
     }
 }

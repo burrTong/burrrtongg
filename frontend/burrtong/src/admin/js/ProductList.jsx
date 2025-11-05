@@ -293,6 +293,8 @@ function ProductList() {
 
             <li><Link to="/admin/orders">📋Orders’ List</Link></li>
 
+            <li><Link to="/admin/coupons">🎟️Coupons’ List</Link></li>
+
           </ul>
 
         </div>
