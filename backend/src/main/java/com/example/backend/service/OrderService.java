@@ -97,14 +97,23 @@ public class OrderService {
             Coupon coupon = couponRepository.findByCode(orderRequest.getCouponCode())
                     .orElseThrow(() -> new ResourceNotFoundException("Invalid coupon code"));
 
-            if (!coupon.isActive() || (coupon.getExpirationDate() != null && coupon.getExpirationDate().isBefore(LocalDateTime.now()))) {
-                throw new RuntimeException("Coupon is not active or has expired");
+            // ตรวจสอบสถานะและวันหมดอายุของ coupon แยกกัน
+            if (!coupon.isActive()) {
+                throw new RuntimeException("Coupon '" + coupon.getCode() + "' is currently inactive");
+            }
+            
+            if (coupon.getExpirationDate() != null && coupon.getExpirationDate().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Coupon '" + coupon.getCode() + "' has expired on " + 
+                    coupon.getExpirationDate().toLocalDate().toString());
             }
             if (coupon.getMaxUses() != null && coupon.getTimesUsed() >= coupon.getMaxUses()) {
-                throw new RuntimeException("Coupon has reached its usage limit");
+                throw new RuntimeException("Coupon '" + coupon.getCode() + "' has reached its maximum usage limit (" + 
+                    coupon.getMaxUses() + " times). Used: " + coupon.getTimesUsed() + " times");
             }
+            
             if (coupon.getMinPurchaseAmount() != null && totalPrice.compareTo(coupon.getMinPurchaseAmount()) < 0) {
-                throw new RuntimeException("Order amount does not meet the minimum purchase amount for this coupon");
+                throw new RuntimeException("Order amount ฿" + totalPrice + " does not meet the minimum purchase amount of ฿" + 
+                    coupon.getMinPurchaseAmount() + " required for coupon '" + coupon.getCode() + "'");
             }
 
             if ("FIXED".equals(coupon.getDiscountType())) {
@@ -118,6 +127,9 @@ public class OrderService {
             couponRepository.save(coupon);
             order.setCoupon(coupon);
         }
+
+        // Ensure total price does not go below zero
+        totalPrice = totalPrice.max(BigDecimal.ZERO);
 
         order.setTotalPrice(totalPrice.doubleValue());
 
@@ -157,6 +169,20 @@ public class OrderService {
             product.setStock(product.getStock() + quantityToReturn);
             productRepository.save(product);
             logger.info("Product {} - Stock after update: {}", productId, product.getStock());
+        }
+
+        // Decrease coupon usage count if coupon was used
+        if (order.getCoupon() != null) {
+            Coupon coupon = order.getCoupon();
+            logger.info("Order used coupon '{}' - Current times used: {}", coupon.getCode(), coupon.getTimesUsed());
+            
+            if (coupon.getTimesUsed() > 0) {
+                coupon.setTimesUsed(coupon.getTimesUsed() - 1);
+                couponRepository.save(coupon);
+                logger.info("Coupon '{}' usage decreased. New times used: {}", coupon.getCode(), coupon.getTimesUsed());
+            } else {
+                logger.warn("Coupon '{}' times used is already 0, cannot decrease further", coupon.getCode());
+            }
         }
 
         order.setStatus(OrderStatus.CANCELED);

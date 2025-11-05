@@ -88,30 +88,72 @@ const Cart = ({ cart, setCart }) => {
     }
     try {
       const coupon = await getCouponByCode(couponCode);
-      if (!coupon.active || (coupon.expirationDate && new Date(coupon.expirationDate) < new Date())) {
-        alert('Coupon is not active or has expired.');
+      
+      // ตรวจสอบสถานะ active
+      if (!coupon.isActive) {
+        alert(`Coupon '${coupon.code}' is currently inactive. Please contact support or try another coupon.`);
         setAppliedCoupon(null);
         setDiscountAmount(0);
         return;
       }
+      
+      // ตรวจสอบวันหมดอายุ
+      if (coupon.expirationDate && new Date(coupon.expirationDate) < new Date()) {
+        const expiredDate = new Date(coupon.expirationDate).toLocaleDateString('th-TH');
+        alert(`Coupon '${coupon.code}' has expired on ${expiredDate}. Please try another coupon.`);
+        setAppliedCoupon(null);
+        setDiscountAmount(0);
+        return;
+      }
+      
+      // ตรวจสอบ usage limit
       if (coupon.maxUses !== null && coupon.timesUsed >= coupon.maxUses) {
-        alert('Coupon has reached its usage limit.');
+        alert(`Coupon '${coupon.code}' has reached its maximum usage limit (${coupon.maxUses} times). It has been used ${coupon.timesUsed} times already.`);
         setAppliedCoupon(null);
         setDiscountAmount(0);
         return;
       }
+      
+      // ตรวจสอบ minimum purchase amount
       if (coupon.minPurchaseAmount && calculateTotal() < coupon.minPurchaseAmount) {
-        alert(`Minimum purchase amount of ${coupon.minPurchaseAmount} not met.`);
+        alert(`Your order total ฿${calculateTotal()} does not meet the minimum purchase amount of ฿${coupon.minPurchaseAmount} required for coupon '${coupon.code}'.`);
         setAppliedCoupon(null);
         setDiscountAmount(0);
         return;
       }
 
       setAppliedCoupon(coupon);
-      alert('Coupon applied successfully!');
+      
+      // แสดงข้อความสำเร็จที่ละเอียด
+      let successMessage = `Coupon '${coupon.code}' applied successfully!`;
+      if (coupon.discountType === 'FIXED') {
+        successMessage += ` You saved ฿${coupon.discountValue}`;
+      } else {
+        successMessage += ` You saved ${coupon.discountValue}%`;
+      }
+      
+      alert(successMessage);
     } catch (error) {
       console.error('Error applying coupon:', error);
-      alert(error.message || 'Failed to apply coupon.');
+      
+      // จัดการ error message ให้ละเอียด
+      let errorMessage = 'Failed to apply coupon.';
+      
+      if (error.message.includes('Invalid coupon code')) {
+        errorMessage = `Coupon code '${couponCode}' is not found. Please check the code and try again.`;
+      } else if (error.message.includes('not active')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('expired')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('usage limit')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('minimum purchase')) {
+        errorMessage = error.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
       setAppliedCoupon(null);
       setDiscountAmount(0);
     }
@@ -217,9 +259,28 @@ const Cart = ({ cart, setCart }) => {
             <button onClick={handleApplyCoupon} disabled={appliedCoupon !== null}>Apply</button>
           </div>
           {appliedCoupon && (
-            <div className="summary-row discount-row">
-              <span>Discount ({appliedCoupon.code})</span>
-              <span>-{discountAmount.toLocaleString()}.-</span>
+            <div className="applied-coupon-info">
+              <div className="summary-row discount-row">
+                <span>
+                  Discount ({appliedCoupon.code})
+                  <span className="coupon-type">
+                    {appliedCoupon.discountType === 'FIXED' 
+                      ? ` - ฿${appliedCoupon.discountValue} off` 
+                      : ` - ${appliedCoupon.discountValue}% off`}
+                  </span>
+                </span>
+                <span>-{discountAmount.toLocaleString()}.-</span>
+              </div>
+              {appliedCoupon.minPurchaseAmount && (
+                <div className="coupon-requirement">
+                  Min. purchase: ฿{appliedCoupon.minPurchaseAmount}
+                </div>
+              )}
+              {appliedCoupon.maxUses && (
+                <div className="coupon-usage">
+                  Used: {appliedCoupon.timesUsed}/{appliedCoupon.maxUses} times
+                </div>
+              )}
             </div>
           )}
           <div className="summary-row">

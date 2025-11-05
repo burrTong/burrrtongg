@@ -20,19 +20,12 @@ const API_BASE_URL = 'http://localhost:8080';
 
 
 function ProductList() {
-
   const [products, setProducts] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState(null);
-
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
-
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
   const [editingProduct, setEditingProduct] = useState(null);
-
   const navigate = useNavigate();
 
 
@@ -148,123 +141,103 @@ function ProductList() {
 
 
   const handleDeleteProduct = async (productId) => {
-
     if (window.confirm(`Are you sure you want to delete product with ID: ${productId}? This will also delete any associated order items.`)) {
-
       try {
-
         await deleteProduct(productId);
-
         setProducts(products.filter(product => product.id !== productId));
-
         alert('Product deleted successfully!');
-
       } catch (err) {
-
         console.error("Failed to delete product:", err);
-
         alert(err.message);
-
       }
-
     }
-
   };
 
 
 
   const renderProductRow = (product) => {
-
     const productModel = {
-
         id: product.id || 'N/A',
-
         name: product.name || 'No Name',
-
         stock: product.stock || 0,
-
         price: product.price || 0,
-
         category: product.category ? product.category.name : 'Uncategorized',
-
         createdAt: product.createdAt || new Date().toISOString(),
-
         imageUrl: product.imageUrl || '/assets/product.png',
-
     };
 
+    // กำหนดสีและสถานะตาม stock level
+    const getStockClass = () => {
+      if (productModel.stock === 0) return 'out-of-stock';
+      if (productModel.stock <= 5) return 'low-stock';
+      if (productModel.stock <= 10) return 'medium-stock';
+      return 'in-stock';
+    };
 
+    const getStockLabel = () => {
+      if (productModel.stock === 0) return 'Out of Stock';
+      if (productModel.stock <= 5) return 'Low Stock';
+      return 'In Stock';
+    };
 
     return (
-
-        <tr key={productModel.id}>
-
+        <tr key={productModel.id} className={productModel.stock === 0 ? 'out-of-stock-row' : ''}>
             <td>{productModel.id}</td>
-
             <td>
-
               <img 
-
                 src={`${API_BASE_URL}${productModel.imageUrl}`}
-
                 alt={productModel.name}
-
                 className="product-thumbnail"
-
               />
-
             </td>
-
-            <td>{productModel.name}</td>
-
             <td>
-
-                <span className={`status ${productModel.stock > 0 ? 'status-available' : 'status-out-of-stock'}`}>
-
-                    {productModel.stock}
-
-                </span>
-
+              <span className="product-name">{productModel.name}</span>
             </td>
-
-            <td>{productModel.price.toLocaleString()}</td>
-
-            <td>{productModel.category}</td>
-
-            <td>{new Date(productModel.createdAt).toLocaleDateString()}</td>
-
             <td>
-
+                <div className="stock-container">
+                  <span className={`stock-value ${getStockClass()}`}>
+                      {productModel.stock}
+                  </span>
+                  <span className={`stock-label ${getStockClass()}`}>
+                      {getStockLabel()}
+                  </span>
+                  {productModel.stock > 0 && productModel.stock <= 10 && (
+                    <div className="stock-progress-bar">
+                      <div 
+                        className={`stock-progress-fill ${getStockClass()}`}
+                        style={{ width: `${Math.min((productModel.stock / 20) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  )}
+                </div>
+            </td>
+            <td>
+              <span className="price-value">฿{productModel.price.toLocaleString()}</span>
+            </td>
+            <td>
+              <span className="category-text">{productModel.category}</span>
+            </td>
+            <td>
+              <span className="date-value">
+                {new Date(productModel.createdAt).toLocaleDateString()}
+              </span>
+            </td>
+            <td>
                 <button 
-
                     className="edit-product-btn" 
-
                     onClick={() => handleEditProduct(product)}
-
                 >
-
                     Edit
-
                 </button>
-
                 <button 
-
                     className="delete-product-btn" 
-
                     onClick={() => handleDeleteProduct(productModel.id)}
-
                 >
-
                     Delete
-
                 </button>
-
             </td>
-
         </tr>
-
     );
-
   };
 
 
@@ -289,11 +262,13 @@ function ProductList() {
 
           <ul>
 
-            <li><Link to="/admin/products">📦Products’ List</Link></li>
+            <li><Link to="/admin/products">📦Products' List</Link></li>
 
-            <li><Link to="/admin/orders">📋Orders’ List</Link></li>
+            <li><Link to="/admin/orders">📋Orders' List</Link></li>
 
-            <li><Link to="/admin/coupons">🎟️Coupons’ List</Link></li>
+            <li><Link to="/admin/coupons">🎟️Coupons' List</Link></li>
+
+            <li><Link to="/admin/categories">📂Categories' List</Link></li>
 
           </ul>
 
@@ -344,8 +319,32 @@ function ProductList() {
 
 
         {!loading && !error && (
+          <>
+            <div className="product-stats">
+              <div className="stat-item">
+                <span className="stat-label">Total Products:</span>
+                <span className="stat-value">{products.length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">In Stock:</span>
+                <span className="stat-value">{products.filter(p => p.stock > 0).length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Low Stock (≤5):</span>
+                <span className="stat-value medium-usage">
+                  {products.filter(p => p.stock > 0 && p.stock <= 5).length}
+                </span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Out of Stock:</span>
+                <span className="stat-value high-usage">
+                  {products.filter(p => p.stock === 0).length}
+                </span>
+              </div>
+            </div>
 
-          <table className="product-table">
+            {products.length > 0 ? (
+              <table className="product-table">
 
                         <thead>
 
@@ -372,13 +371,23 @@ function ProductList() {
                         </thead>
 
             <tbody>
-
               {products.map(renderProductRow)}
-
             </tbody>
-
           </table>
-
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon">📦</div>
+                <h3>No products found</h3>
+                <p>No products match your current filter criteria.</p>
+                <button 
+                  onClick={() => setFilterStatus('all')}
+                  className="reset-filter-btn"
+                >
+                  Show All Products
+                </button>
+              </div>
+            )}
+        </>
         )}
 
       </main>

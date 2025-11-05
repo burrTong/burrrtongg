@@ -283,3 +283,44 @@ h1 {
   }
   .cart-item-price { display: none; } /* Hide original price */
 }
+
+/* ====== Coupon Information Styling ====== */
+.applied-coupon-info {
+  background-color: #e8f5e8;
+  border: 1px solid #28a745;
+  border-radius: var(--border-radius);
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.coupon-type {
+  font-size: 0.85em;
+  color: var(--success-color);
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.coupon-requirement,
+.coupon-usage {
+  font-size: 0.8em;
+  color: var(--dark-gray);
+  margin-top: 0.25rem;
+  padding-left: 1rem;
+}
+
+.coupon-requirement::before {
+  content: "📋 ";
+  margin-right: 0.25rem;
+}
+
+.coupon-usage::before {
+  content: "📊 ";
+  margin-right: 0.25rem;
+}
+
+.discount-row {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 0.5rem;
+  border-left: 4px solid var(--success-color);
+}

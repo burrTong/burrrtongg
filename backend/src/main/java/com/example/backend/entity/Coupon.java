@@ -1,6 +1,7 @@
 
 package com.example.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class Coupon {
     private BigDecimal minPurchaseAmount;
 
     @Column(name = "is_active")
+    @JsonProperty("isActive")
     private boolean isActive = true;
 
     @Column(name = "created_at", updatable = false)
@@ -119,10 +121,12 @@ public class Coupon {
         this.minPurchaseAmount = minPurchaseAmount;
     }
 
+    @JsonProperty("isActive")
     public boolean isActive() {
         return isActive;
     }
 
+    @JsonProperty("isActive")
     public void setActive(boolean active) {
         isActive = active;
     }

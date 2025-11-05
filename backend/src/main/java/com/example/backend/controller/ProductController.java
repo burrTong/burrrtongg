@@ -36,6 +36,11 @@ public class ProductController {
         return productService.searchProducts(name);
     }
 
+    @GetMapping("/category/{categoryId}")
+    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
+        return productService.getProductsByCategory(categoryId);
+    }
+
     @PostMapping
     public ResponseEntity<Product> createProduct(
             @RequestPart("product") ProductRequest productRequest,

@@ -55,6 +55,12 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(name);
     }
 
+    public List<Product> getProductsByCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + categoryId));
+        return productRepository.findByCategory(category);
+    }
+
     public Product createProduct(ProductRequest productRequest, MultipartFile imageFile) {
         Product product = new Product();
         product.setName(productRequest.getName());

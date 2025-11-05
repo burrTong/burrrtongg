@@ -9,6 +9,7 @@ import SignupPage from "./SignupPage.jsx";
 import ProductList from "../../admin/js/ProductList.jsx";
 import OrderList from "../../admin/js/OrderList.jsx";
 import CouponList from "../../admin/js/CouponList.jsx"; // Import CouponList
+import CategoryList from "../../admin/js/CategoryList.jsx"; // Import CategoryList
 import AdminLoginPage from "../../admin/js/AdminLoginPage.jsx";
 import AdminSignupPage from "../../admin/js/AdminSignupPage.jsx";
 
@@ -34,6 +35,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/admin/products" element={<ProductList />} />
         <Route path="/admin/orders" element={<OrderList />} />
         <Route path="/admin/coupons" element={<CouponList />} />
+        <Route path="/admin/categories" element={<CategoryList />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

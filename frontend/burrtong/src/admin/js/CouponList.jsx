@@ -21,6 +21,7 @@ function CouponList() {
     try {
       setLoading(true);
       const data = await getAllCoupons();
+      console.log('Fetched coupons:', data); // Debug log to see the structure
       setCoupons(data);
       setError(null);
     } catch (err) {
@@ -43,6 +44,7 @@ function CouponList() {
   const handleCreateCoupon = async (couponData) => {
     try {
       const newCoupon = await createCoupon(couponData);
+      console.log('Created coupon response:', newCoupon); // Debug log
       setCoupons([newCoupon, ...coupons]);
       setIsNewModalOpen(false);
     } catch (err) {
@@ -59,6 +61,7 @@ function CouponList() {
   const handleUpdateCoupon = async (couponId, couponData) => {
     try {
       const updatedCoupon = await updateCoupon(couponId, couponData);
+      console.log('Updated coupon response:', updatedCoupon); // Debug log
       setCoupons(coupons.map(c => c.id === couponId ? updatedCoupon : c));
       setIsEditModalOpen(false);
       setEditingCoupon(null);
@@ -81,24 +84,74 @@ function CouponList() {
     }
   };
 
-  const renderCouponRow = (coupon) => (
-    <tr key={coupon.id}>
-      <td>{coupon.id}</td>
-      <td>{coupon.code}</td>
-      <td>{coupon.discountType}</td>
-      <td>{coupon.discountType === 'FIXED' ? `${coupon.discountValue}.-` : `${coupon.discountValue}%`}</td>
-      <td>{new Date(coupon.expirationDate).toLocaleDateString()}</td>
-      <td>
-        <span className={`status ${coupon.active ? 'status-available' : 'status-out-of-stock'}`}>
-          {coupon.active ? 'Active' : 'Inactive'}
-        </span>
-      </td>
-      <td>
-        <button className="edit-product-btn" onClick={() => handleEditCoupon(coupon)}>Edit</button>
-        <button className="delete-product-btn" onClick={() => handleDeleteCoupon(coupon.id)}>Delete</button>
-      </td>
-    </tr>
-  );
+  const renderCouponRow = (coupon) => {
+    // คำนวณ usage percentage และกำหนดสี
+    const usagePercentage = coupon.maxUses ? Math.round(((coupon.timesUsed || 0) / coupon.maxUses) * 100) : 0;
+    const getUsageClass = () => {
+      if (usagePercentage >= 80) return 'high-usage';
+      if (usagePercentage >= 60) return 'medium-usage';
+      return '';
+    };
+
+    // ตรวจสอบการหมดอายุ
+    const expirationDate = new Date(coupon.expirationDate);
+    const today = new Date();
+    const daysUntilExpiry = Math.ceil((expirationDate - today) / (1000 * 60 * 60 * 24));
+    const isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+    const isExpired = daysUntilExpiry <= 0;
+
+    return (
+      <tr key={coupon.id} className={isExpired ? 'expired-row' : ''}>
+        <td>{coupon.id}</td>
+        <td>{coupon.code}</td>
+        <td>{coupon.discountType}</td>
+        <td>{coupon.discountType === 'FIXED' ? `${coupon.discountValue}.-` : `${coupon.discountValue}%`}</td>
+        <td>
+          <span className={`expiry-date ${isExpired ? 'expired' : isExpiringSoon ? 'expiring-soon' : ''}`}>
+            {expirationDate.toLocaleDateString()}
+            {isExpired && <span className="expiry-label"> (Expired)</span>}
+            {isExpiringSoon && <span className="expiry-label"> ({daysUntilExpiry} days left)</span>}
+          </span>
+        </td>
+        <td>
+          {coupon.maxUses ? (
+            <span className="usage-limit">{coupon.maxUses}</span>
+          ) : (
+            <span className="unlimited">Unlimited</span>
+          )}
+        </td>
+        <td>
+          <div className="usage-container">
+            <span className={`times-used ${getUsageClass()}`}>
+              {coupon.timesUsed || 0}
+              {coupon.maxUses && (
+                <span className="usage-percentage">
+                  {` / ${coupon.maxUses} (${usagePercentage}%)`}
+                </span>
+              )}
+            </span>
+            {coupon.maxUses && (
+              <div className="usage-progress-bar">
+                <div 
+                  className={`usage-progress-fill ${getUsageClass()}`}
+                  style={{ width: `${Math.min(usagePercentage, 100)}%` }}
+                ></div>
+              </div>
+            )}
+          </div>
+        </td>
+        <td>
+          <span className={`status ${coupon.isActive ? 'status-available' : 'status-out-of-stock'}`}>
+            {coupon.isActive ? 'Active' : 'Inactive'}
+          </span>
+        </td>
+        <td>
+          <button className="edit-product-btn" onClick={() => handleEditCoupon(coupon)}>Edit</button>
+          <button className="delete-product-btn" onClick={() => handleDeleteCoupon(coupon.id)}>Delete</button>
+        </td>
+      </tr>
+    );
+  };
 
   return (
     <div className="dashboard">
@@ -109,10 +162,16 @@ function CouponList() {
               <img src={BurtongLogo} alt="Burtong Logo" />
             </Link>
           </div>
-          <ul>
-            <li><Link to="/admin/products">📦Products’ List</Link></li>
-            <li><Link to="/admin/orders">📋Orders’ List</Link></li>
-            <li><Link to="/admin/coupons">🎟️Coupons’ List</Link></li>
+                    <ul>
+
+            <li><Link to="/admin/products">📦Products' List</Link></li>
+
+            <li><Link to="/admin/orders">📋Orders' List</Link></li>
+
+            <li><Link to="/admin/coupons">🎟️Coupons' List</Link></li>
+
+            <li><Link to="/admin/categories">📂Categories' List</Link></li>
+
           </ul>
         </div>
         <div className="sidebar-footer">
@@ -136,22 +195,52 @@ function CouponList() {
         {error && <p className="error-message">Error: {error}</p>}
 
         {!loading && !error && (
-          <table className="product-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Code</th>
-                <th>Type</th>
-                <th>Value</th>
-                <th>Expires</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coupons.map(renderCouponRow)}
-            </tbody>
-          </table>
+          <>
+            <div className="coupon-stats">
+              <div className="stat-item">
+                <span className="stat-label">Total Coupons:</span>
+                <span className="stat-value">{coupons.length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Active Coupons:</span>
+                <span className="stat-value">{coupons.filter(c => c.isActive).length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Expiring Soon (≤7 days):</span>
+                <span className="stat-value medium-usage">
+                  {coupons.filter(c => {
+                    const daysUntilExpiry = Math.ceil((new Date(c.expirationDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    return daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+                  }).length}
+                </span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">High Usage (≥80%):</span>
+                <span className="stat-value high-usage">
+                  {coupons.filter(c => c.maxUses && ((c.timesUsed || 0) / c.maxUses) >= 0.8).length}
+                </span>
+              </div>
+            </div>
+            
+            <table className="product-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Code</th>
+                  <th>Type</th>
+                  <th>Value</th>
+                  <th>Expires</th>
+                  <th>Max Uses</th>
+                  <th>Times Used</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {coupons.map(renderCouponRow)}
+              </tbody>
+            </table>
+          </>
         )}
       </main>
 

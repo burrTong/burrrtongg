@@ -37,6 +37,7 @@ function NewCouponModal({ isOpen, onClose, onCreateCoupon }) {
       discountValue: parseFloat(formData.discountValue),
       maxUses: formData.maxUses ? parseInt(formData.maxUses, 10) : null,
       minPurchaseAmount: formData.minPurchaseAmount ? parseFloat(formData.minPurchaseAmount) : null,
+      isActive: formData.isActive, // Explicitly include isActive boolean
     };
 
     onCreateCoupon(couponData);
@@ -86,8 +87,16 @@ function NewCouponModal({ isOpen, onClose, onCreateCoupon }) {
           </div>
 
           <div className="form-group form-group-checkbox">
-            <label htmlFor="isActive">Active</label>
-            <input id="isActive" type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} />
+            <input 
+              id="isActive" 
+              type="checkbox" 
+              name="isActive" 
+              checked={formData.isActive} 
+              onChange={handleChange} 
+            />
+            <label htmlFor="isActive">
+              Active {formData.isActive ? '(Enabled)' : '(Disabled)'}
+            </label>
           </div>
 
           <button type="submit" className="modal-submit-btn">Create Coupon</button>

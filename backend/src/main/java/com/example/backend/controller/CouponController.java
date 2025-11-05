@@ -31,4 +31,20 @@ public class CouponController {
     public List<Coupon> getAllCoupons() {
         return couponService.getAllCoupons();
     }
+
+    @GetMapping("/active")
+    public List<Coupon> getActiveCoupons() {
+        return couponService.getActiveCoupons();
+    }
+
+    @PutMapping("/{id}")
+    public Coupon updateCoupon(@PathVariable Long id, @RequestBody Coupon coupon) {
+        return couponService.updateCoupon(id, coupon);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteCoupon(@PathVariable Long id) {
+        couponService.deleteCoupon(id);
+        return "Coupon deleted with id " + id;
+    }
 }

@@ -22,7 +22,7 @@ function EditCouponModal({ isOpen, onClose, coupon, onUpdateCoupon }) {
         expirationDate: coupon.expirationDate ? new Date(coupon.expirationDate).toISOString().split('T')[0] : '',
         maxUses: coupon.maxUses || '',
         minPurchaseAmount: coupon.minPurchaseAmount || '',
-        isActive: coupon.active !== undefined ? coupon.active : true,
+        isActive: coupon.isActive !== undefined ? coupon.isActive : true,
       });
     }
   }, [coupon]);
@@ -51,6 +51,7 @@ function EditCouponModal({ isOpen, onClose, coupon, onUpdateCoupon }) {
       discountValue: parseFloat(formData.discountValue),
       maxUses: formData.maxUses ? parseInt(formData.maxUses, 10) : null,
       minPurchaseAmount: formData.minPurchaseAmount ? parseFloat(formData.minPurchaseAmount) : null,
+      isActive: formData.isActive, // Explicitly include isActive boolean
     };
 
     onUpdateCoupon(coupon.id, couponData);
@@ -100,8 +101,16 @@ function EditCouponModal({ isOpen, onClose, coupon, onUpdateCoupon }) {
           </div>
 
           <div className="form-group form-group-checkbox">
-            <label htmlFor="isActive">Active</label>
-            <input id="isActive" type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} />
+            <input 
+              id="isActive" 
+              type="checkbox" 
+              name="isActive" 
+              checked={formData.isActive} 
+              onChange={handleChange} 
+            />
+            <label htmlFor="isActive">
+              Active {formData.isActive ? '(Enabled)' : '(Disabled)'}
+            </label>
           </div>
 
           <button type="submit" className="modal-submit-btn">Update Coupon</button>

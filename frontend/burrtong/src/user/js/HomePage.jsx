@@ -10,7 +10,8 @@ import userImg from "../../assets/user.png";
 import AUImg from "../../assets/AU.jpg";
 
 import "../css/App.css";
-import HotProducts from "./HotProducts.jsx"; // <-- เพิ่มบรรทัดนี้
+import HotProducts from "./HotProducts.jsx";
+import AvailableCoupons from "./AvailableCoupons.jsx";
 
 function HomePage() {
   const settings = {
@@ -34,6 +35,9 @@ function HomePage() {
           <div><img src={AUImg} alt="AU" className="colossal-image" /></div>
         </Slider>
       </section>
+
+      {/* Available Coupons */}
+      <AvailableCoupons />
 
       {/* Hot Products */}
       <HotProducts limit={3} />
