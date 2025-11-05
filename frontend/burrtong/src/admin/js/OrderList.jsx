@@ -101,7 +101,17 @@ function OrderList() {
                   <td>#{order.id}</td>
                   <td>{order.customer ? order.customer.username : 'N/A'}</td>
                   <td>{new Date(order.orderDate).toLocaleDateString()}</td>
-                  <td>${order.totalPrice ? order.totalPrice.toFixed(2) : '0.00'}</td>
+                  <td>
+                    <div>
+                      <span>Subtotal: ${order.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)}</span>
+                      {order.coupon && (
+                        <div className="discount-details">
+                          <span>Discount ({order.coupon.code}): -${(order.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) - order.totalPrice).toFixed(2)}</span>
+                        </div>
+                      )}
+                      <strong>Total: ${order.totalPrice ? order.totalPrice.toFixed(2) : '0.00'}</strong>
+                    </div>
+                  </td>
                   <td>
                     <span className={`status status-${order.status ? order.status.toLowerCase() : 'unknown'}`}>
                       {order.status || 'UNKNOWN'}

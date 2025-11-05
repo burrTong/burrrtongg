@@ -25,7 +25,7 @@ if ($files.Count -eq 0) {
 }
 
 # Create a temporary container with the volume mounted, then copy files into the volume
-$containerName = "_tmp_copy_to_volume_" + ([System.Guid]::NewGuid().ToString().Substring(0,8))
+$containerName = "tmp_copy_to_volume_" + ([System.Guid]::NewGuid().ToString().Substring(0,8))
 
 # Create a minimal container that mounts the target volume at /uploads
 Write-Host "Creating temporary container '$containerName' and mounting volume '$volumeName'..."
@@ -34,7 +34,7 @@ docker container create --name $containerName -v "${volumeName}:/uploads" alpine
 try {
     Write-Host "Copying files into container..."
     # Use docker cp to copy from host into container's /uploads
-    docker cp $sourceDir/. $containerName:/uploads
+    docker cp $sourceDir/. "${containerName}:/uploads"
 
     Write-Host "Files copied to volume successfully. Removing temporary container..."
 } finally {

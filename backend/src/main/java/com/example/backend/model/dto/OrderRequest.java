@@ -5,6 +5,16 @@ import java.util.List;
 public class OrderRequest {
     private Long customerId;
     private List<OrderItemRequest> items;
+    private String couponCode;
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
+    }
+
 
     public Long getCustomerId() {
         return customerId;

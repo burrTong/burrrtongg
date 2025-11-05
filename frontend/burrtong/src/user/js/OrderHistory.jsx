@@ -38,25 +38,40 @@ function OrderHistory() {
         <p>You have no orders.</p>
       ) : (
         <ul className="order-history-list">
-          {orders.map((order) => (
-            <li key={order.id} className="order-history-item">
-              <div className="order-history-item-header">
-                <span>Order ID: {order.id}</span>
-                <span>Date: {new Date(order.orderDate).toLocaleDateString()}</span>
-                <span>Status: {order.status}</span>
-                <span>Total: ${order.totalPrice.toFixed(2)}</span>
-              </div>
-              <ul className="order-history-item-products">
-                {order.orderItems.map((item) => (
-                  <li key={item.product.id}>
-                    <span className="product-name">{item.product.name}</span>
-                    <span className="product-quantity">Quantity: {item.quantity}</span>
-                    <span className="product-price">${item.price.toFixed(2)}</span>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
+          {orders.map((order) => {
+            const subtotal = order.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+            const discount = order.coupon ? subtotal - order.totalPrice : 0;
+
+            return (
+              <li key={order.id} className="order-history-item">
+                <div className="order-history-item-header">
+                  <span>Order ID: {order.id}</span>
+                  <span>Date: {new Date(order.orderDate).toLocaleDateString()}</span>
+                  <span>Status: {order.status}</span>
+                </div>
+                <ul className="order-history-item-products">
+                  {order.orderItems.map((item) => (
+                    <li key={item.product.id}>
+                      <span className="product-name">{item.product.name}</span>
+                      <span className="product-quantity">Quantity: {item.quantity}</span>
+                      <span className="product-price">${item.price.toFixed(2)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="order-history-item-footer">
+                  <div className="price-details">
+                    <span>Subtotal: ${subtotal.toFixed(2)}</span>
+                    {order.coupon && (
+                      <span className="discount-details">
+                        Discount ({order.coupon.code}): -${discount.toFixed(2)}
+                      </span>
+                    )}
+                    <span className="total-price">Total: ${order.totalPrice.toFixed(2)}</span>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

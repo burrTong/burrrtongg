@@ -1,5 +1,7 @@
+
 package com.example.backend.service;
 
+import com.example.backend.entity.Coupon;
 import com.example.backend.entity.Order;
 import com.example.backend.entity.OrderItem;
 import com.example.backend.entity.Product;
@@ -7,18 +9,19 @@ import com.example.backend.entity.User;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.OrderStatus;
 import com.example.backend.model.dto.OrderRequest;
+import com.example.backend.repository.CouponRepository;
 import com.example.backend.repository.OrderRepository;
 import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -28,11 +31,13 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final CouponRepository couponRepository;
 
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository) {
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository, CouponRepository couponRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.couponRepository = couponRepository;
     }
 
     public List<Order> getAllOrders() {
@@ -61,7 +66,7 @@ public class OrderService {
         order.setStatus(OrderStatus.PENDING);
 
         List<OrderItem> orderItems = new ArrayList<>();
-        double totalPrice = 0.0;
+        BigDecimal totalPrice = BigDecimal.ZERO;
 
         for (var itemRequest : orderRequest.getItems()) {
             Product product = productRepository.findById(itemRequest.getProductId())
@@ -78,7 +83,7 @@ public class OrderService {
             orderItem.setPrice(product.getPrice());
             orderItems.add(orderItem);
 
-            totalPrice += product.getPrice() * itemRequest.getQuantity();
+            totalPrice = totalPrice.add(BigDecimal.valueOf(product.getPrice()).multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
 
             // Decrease stock
             product.setStock(product.getStock() - itemRequest.getQuantity());
@@ -86,7 +91,35 @@ public class OrderService {
         }
 
         order.setOrderItems(orderItems);
-        order.setTotalPrice(totalPrice);
+
+        // Coupon logic
+        if (orderRequest.getCouponCode() != null && !orderRequest.getCouponCode().isEmpty()) {
+            Coupon coupon = couponRepository.findByCode(orderRequest.getCouponCode())
+                    .orElseThrow(() -> new ResourceNotFoundException("Invalid coupon code"));
+
+            if (!coupon.isActive() || (coupon.getExpirationDate() != null && coupon.getExpirationDate().isBefore(LocalDateTime.now()))) {
+                throw new RuntimeException("Coupon is not active or has expired");
+            }
+            if (coupon.getMaxUses() != null && coupon.getTimesUsed() >= coupon.getMaxUses()) {
+                throw new RuntimeException("Coupon has reached its usage limit");
+            }
+            if (coupon.getMinPurchaseAmount() != null && totalPrice.compareTo(coupon.getMinPurchaseAmount()) < 0) {
+                throw new RuntimeException("Order amount does not meet the minimum purchase amount for this coupon");
+            }
+
+            if ("FIXED".equals(coupon.getDiscountType())) {
+                totalPrice = totalPrice.subtract(coupon.getDiscountValue());
+            } else if ("PERCENTAGE".equals(coupon.getDiscountType())) {
+                BigDecimal discount = totalPrice.multiply(coupon.getDiscountValue().divide(BigDecimal.valueOf(100)));
+                totalPrice = totalPrice.subtract(discount);
+            }
+
+            coupon.setTimesUsed(coupon.getTimesUsed() + 1);
+            couponRepository.save(coupon);
+            order.setCoupon(coupon);
+        }
+
+        order.setTotalPrice(totalPrice.doubleValue());
 
         return orderRepository.save(order);
     }

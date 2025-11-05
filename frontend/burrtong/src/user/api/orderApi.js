@@ -35,3 +35,14 @@ export const getOrdersByCustomerId = async (customerId) => {
     throw error;
   }
 };
+
+export const getCouponByCode = async (couponCode) => {
+  const response = await fetch(`${API_BASE_URL}/api/coupons/${couponCode}`);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to fetch coupon');
+  }
+
+  return await response.json();
+};
