@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signupAdmin } from '../api/authApi'; // Import the signupAdmin function
 import '../../user/css/SignupPage.css';
+import BurtongLogo from '../../assets/Burtong_logo.png';
 
 function AdminSignupPage() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ function AdminSignupPage() {
   return (
     <div className="signup-container">
       <div className="signup-form">
-        <img src="/vite.svg" alt="Burrtong" className="logo" />
+        <img src={BurtongLogo} alt="Burrtong" className="logo" />
         <h2>Admin Sign Up</h2>
         <form onSubmit={handleSubmit}>
           {generalError && <p className="error">{generalError}</p>} {/* Display general API error */}

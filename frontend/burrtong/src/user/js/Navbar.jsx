@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../css/Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
+import BurtongLogo from '../../assets/Burtong_logo.png';
 
 function Navbar() {
   const [open, setOpen] = useState(false);              // desktop avatar dropdown
@@ -53,7 +54,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       {/* Logo */}
-      <Link to="/home" className="logo">Burtong</Link>
+      <Link to="/home" className="logo"><img src={BurtongLogo} alt="Burtong Logo" /></Link>
 
       {/* Search (ซ่อนอัตโนมัติบนมือถือด้วย CSS; ไม่รวมในเมนู) */}
       <form className="search-container" onSubmit={handleSearch}>

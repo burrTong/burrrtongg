@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { login } from '../api/authApi';
 import '../../user/css/LoginPage.css';
+import BurtongLogo from '../../assets/Burtong_logo.png';
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
@@ -35,10 +36,10 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="logo-container">
-          <img src="/vite.svg" alt="BURTONG Logo" className="logo" />
+    <div class="login-page">
+      <div class="login-container">
+        <div class="logo-container">
+          <img src={BurtongLogo} alt="BURTONG Logo" className="logo" />
           <h1>BURTONG - Admin</h1>
         </div>
         <h2>Admin Login</h2>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllOrders, updateOrderStatus, denyOrder } from '../api/orderApi'; // Import denyOrder
+import '../css/ProductList.css'; // Import shared CSS
+import BurtongLogo from '../../assets/Burtong_logo.png'; // Import logo
 
 function OrderList() {
   const [orders, setOrders] = useState([]);
@@ -59,7 +61,11 @@ function OrderList() {
     <div className="dashboard">
       <aside className="sidebar">
         <div>
-          <h2>Burtong</h2>
+          <div className="sidebar-logo">
+            <Link to="/admin/products">
+              <img src={BurtongLogo} alt="Burtong Logo" />
+            </Link>
+          </div>
           <ul>
             <li><Link to="/admin/products">📦Products’ List</Link></li>
             <li><Link to="/admin/orders">📋Orders’ List</Link></li>

@@ -14,11 +14,15 @@
   flex-direction: column;
 }
 
-.sidebar h2 {
-  margin-bottom: 40px;
-  font-size: 36px;
-  color: #ffffff;
+.sidebar-logo {
+  padding: 20px 0;
   text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar-logo img {
+  max-width: 80%;
+  height: auto;
 }
 
 .sidebar ul {

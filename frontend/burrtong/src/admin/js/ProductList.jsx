@@ -11,6 +11,8 @@ import EditProductModal from "./EditProductModal";
 
 import '../css/ProductList.css';
 
+import BurtongLogo from '../../assets/Burtong_logo.png';
+
 
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -275,7 +277,15 @@ function ProductList() {
 
         <div>
 
-          <h2>Burtong</h2>
+          <div className="sidebar-logo">
+
+            <Link to="/admin/products">
+
+              <img src={BurtongLogo} alt="Burtong Logo" />
+
+            </Link>
+
+          </div>
 
           <ul>
 

@@ -6,6 +6,13 @@ import { createOrder, getCouponByCode } from '../api/orderApi.js';
 
 const API_BASE_URL = 'http://localhost:8080';
 
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+    <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+  </svg>
+);
+
 const Cart = ({ cart, setCart }) => {
   const [checkoutStatus, setCheckoutStatus] = useState('idle'); // idle, success, error
   const [couponCode, setCouponCode] = useState('');
@@ -48,15 +55,30 @@ const Cart = ({ cart, setCart }) => {
   }, [cart, appliedCoupon]);
 
   const handleQuantityChange = (productId, newQuantity) => {
+    const itemInCart = cart.find(item => item.id === productId);
+
+    if (!itemInCart) return;
+
+    // Prevent quantity from going below 1
     if (newQuantity < 1) {
-      setCart(cart.filter(item => item.id !== productId));
-    } else {
-      setCart(
-        cart.map(item =>
-          item.id === productId ? { ...item, quantity: newQuantity } : item
-        )
-      );
+      newQuantity = 1;
     }
+
+    // Check against stock
+    if (newQuantity > itemInCart.stock) {
+      alert(`You can only add up to ${itemInCart.stock} items.`);
+      newQuantity = itemInCart.stock;
+    }
+
+    setCart(
+      cart.map(item =>
+        item.id === productId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const handleRemoveItem = (productId) => {
+    setCart(cart.filter(item => item.id !== productId));
   };
 
   const handleApplyCoupon = async () => {
@@ -66,7 +88,6 @@ const Cart = ({ cart, setCart }) => {
     }
     try {
       const coupon = await getCouponByCode(couponCode);
-      // Basic client-side validation (backend does full validation)
       if (!coupon.active || (coupon.expirationDate && new Date(coupon.expirationDate) < new Date())) {
         alert('Coupon is not active or has expired.');
         setAppliedCoupon(null);
@@ -140,27 +161,44 @@ const Cart = ({ cart, setCart }) => {
       <div className="cart-content">
         <div className="cart-items">
           <div className="cart-header">
-            <div></div>
-            <div>Price</div>
-            <div>Quantity</div>
+            <div className="header-product">Product</div>
+            <div className="header-price">Price</div>
+            <div className="header-quantity">Quantity</div>
+            <div className="header-total">Total</div>
+            <div className="header-remove"></div>
           </div>
-          {cart.map(item => {
-            const product = new Product(item);
-            return (
-              <div className="cart-item" key={item.id}>
-                <div className="cart-item-details">
-                  <img src={`${API_BASE_URL}${product.imageUrl || '/assets/product.png'}`} alt={product.name} />
-                  <p>{product.name}</p>
+          {cart.length === 0 ? (
+            <p>Your cart is empty.</p>
+          ) : (
+            cart.map(item => {
+              const product = new Product(item);
+              return (
+                <div className="cart-item" key={item.id}>
+                  <div className="cart-item-details">
+                    <img src={`${API_BASE_URL}${product.imageUrl || '/assets/product.png'}`} alt={product.name} />
+                    <div>
+                      <p className="item-name">{product.name}</p>
+                      {/* Optional: <p className="item-category">Category</p> */}
+                    </div>
+                  </div>
+                  <div className="cart-item-price">{product.getFormattedPrice()}</div>
+                  <div className="cart-item-quantity">
+                    <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
+                    <span>{item.quantity}</span>
+                    <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
+                  </div>
+                  <div className="cart-item-total">
+                    {(product.price * item.quantity).toLocaleString()}.-
+                  </div>
+                  <div className="cart-item-remove">
+                    <button className="remove-item-btn" onClick={() => handleRemoveItem(item.id)}>
+                      <TrashIcon />
+                    </button>
+                  </div>
                 </div>
-                <div className="cart-item-price">{product.getFormattedPrice()}</div>
-                <div className="cart-item-quantity">
-                  <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
-                  <span>{item.quantity}</span>
-                  <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
-                </div>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
         <div className="cart-summary">
           <h2>Order Summary</h2>
@@ -196,14 +234,14 @@ const Cart = ({ cart, setCart }) => {
           <button 
             className={`checkout-button ${checkoutStatus === 'success' ? 'success' : ''}`}
             onClick={handleCheckout} 
-            disabled={checkoutStatus === 'success'}
+            disabled={checkoutStatus === 'success' || cart.length === 0}
           >
             {checkoutStatus === 'success' ? 'Order Placed!' : 'Checkout'}
           </button>
         </div>
       </div>
       <div className="back-link">
-        <Link to="/home/products">←</Link>
+        <Link to="/home/products">← Continue Shopping</Link>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { login } from '../api/authApi'; // นำเข้าฟังก์ชัน login
 import '../css/LoginPage.css';
+import BurtongLogo from '../../assets/Burtong_logo.png';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ const LoginPage = () => {
     <div className="login-page">
       <div className="login-container">
         <div className="logo-container">
-          <img src="/vite.svg" alt="BURTONG Logo" className="logo" />
+          <img src={BurtongLogo} alt="BURTONG Logo" className="logo" />
           <h1>BURTONG</h1>
         </div>
         <h2>Login</h2>
