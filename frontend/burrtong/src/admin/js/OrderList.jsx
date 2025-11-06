@@ -94,6 +94,7 @@ function OrderList() {
             <thead>
               <tr>
                 <th>Order ID</th>
+                <th>Print</th>
                 <th>Customer</th>
                 <th>Date</th>
                 <th>Total</th>
@@ -105,6 +106,11 @@ function OrderList() {
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td>#{order.id}</td>
+                  <td>
+                    <button className="print-pdf-btn" disabled>
+                      Print PDF
+                    </button>
+                  </td>
                   <td>{order.customer ? order.customer.username : 'N/A'}</td>
                   <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                   <td>

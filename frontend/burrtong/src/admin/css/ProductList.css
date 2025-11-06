@@ -652,3 +652,27 @@
     text-align: left;
   }
 }
+
+/* Print PDF Button */
+.print-pdf-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.print-pdf-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.print-pdf-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #6c757d;
+}
