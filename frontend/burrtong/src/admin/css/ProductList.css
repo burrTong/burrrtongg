@@ -481,11 +481,6 @@
   color: #28a745;
 }
 
-.stock-value.medium-stock,
-.stock-label.medium-stock {
-  color: #17a2b8;
-}
-
 .stock-value.low-stock,
 .stock-label.low-stock {
   color: #ffc107;
@@ -494,34 +489,6 @@
 .stock-value.out-of-stock,
 .stock-label.out-of-stock {
   color: #dc3545;
-}
-
-/* Stock Progress Bar */
-.stock-progress-bar {
-  width: 60px;
-  height: 4px;
-  background-color: #e9ecef;
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 2px;
-}
-
-.stock-progress-fill {
-  height: 100%;
-  transition: width 0.3s ease, background-color 0.3s ease;
-  border-radius: 2px;
-}
-
-.stock-progress-fill.in-stock {
-  background-color: #28a745;
-}
-
-.stock-progress-fill.medium-stock {
-  background-color: #17a2b8;
-}
-
-.stock-progress-fill.low-stock {
-  background-color: #ffc107;
 }
 
 /* Price Styling */

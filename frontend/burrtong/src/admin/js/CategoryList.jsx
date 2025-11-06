@@ -134,7 +134,6 @@ function CategoryList() {
       <main className="main">
         <header className="main-header">
           <h1 className="main-title">Categories' List</h1>
-          <p className="breadcrumb">Dashboard / Categories' List</p>
           <button 
             className="new-product-btn"
             onClick={() => setIsNewModalOpen(true)}

@@ -83,8 +83,7 @@ function OrderList() {
 
       <main className="main">
         <header className="main-header">
-          <h1 className="main-title">Orders’ List</h1>
-          <p className="breadcrumb">Dashboard / Orders’ List</p>
+          <h1 className="main-title">Orders' List</h1>
         </header>
 
         {loading && <p>Loading orders...</p>}
@@ -110,13 +109,17 @@ function OrderList() {
                   <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                   <td>
                     <div>
-                      <span>Subtotal: ${order.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)}</span>
-                      {order.coupon && (
+                      <div>Subtotal: ${order.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)}</div>
+                      {order.coupon ? (
                         <div className="discount-details">
-                          <span>Discount ({order.coupon.code}): -${(order.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) - order.totalPrice).toFixed(2)}</span>
+                          Discount ({order.coupon.code}): -${(order.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) - order.totalPrice).toFixed(2)}
+                        </div>
+                      ) : (
+                        <div className="discount-details">
+                          Discount: $0.00
                         </div>
                       )}
-                      <strong>Total: ${order.totalPrice ? order.totalPrice.toFixed(2) : '0.00'}</strong>
+                      <div><strong>Total: ${order.totalPrice ? order.totalPrice.toFixed(2) : '0.00'}</strong></div>
                     </div>
                   </td>
                   <td>

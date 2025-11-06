@@ -170,7 +170,6 @@ function ProductList() {
     const getStockClass = () => {
       if (productModel.stock === 0) return 'out-of-stock';
       if (productModel.stock <= 5) return 'low-stock';
-      if (productModel.stock <= 10) return 'medium-stock';
       return 'in-stock';
     };
 
@@ -201,14 +200,6 @@ function ProductList() {
                   <span className={`stock-label ${getStockClass()}`}>
                       {getStockLabel()}
                   </span>
-                  {productModel.stock > 0 && productModel.stock <= 10 && (
-                    <div className="stock-progress-bar">
-                      <div 
-                        className={`stock-progress-fill ${getStockClass()}`}
-                        style={{ width: `${Math.min((productModel.stock / 20) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                  )}
                 </div>
             </td>
             <td>
@@ -296,9 +287,7 @@ function ProductList() {
 
           <div className="title-group">
 
-            <h1 className="main-title">Products’ List</h1>
-
-            <p className="breadcrumb">Dashboard / Products’ List</p>
+            <h1 className="main-title">Products' List</h1>
 
           </div>
 

@@ -185,8 +185,7 @@ function CouponList() {
       <main className="main">
         <header className="main-header">
           <div className="title-group">
-            <h1 className="main-title">Coupons’ List</h1>
-            <p className="breadcrumb">Dashboard / Coupons’ List</p>
+            <h1 className="main-title">Coupons' List</h1>
           </div>
           <button onClick={() => setIsNewModalOpen(true)} className="new-product-btn">+ New Coupon</button>
         </header>
