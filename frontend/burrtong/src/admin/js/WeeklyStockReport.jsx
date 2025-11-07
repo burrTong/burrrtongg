@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../css/ProductList.css'; // Reusing the same CSS for consistency
+import '../css/StockReport.css'; // Progress bar styles
 import BurtongLogo from '../../assets/Burtong_logo.png';
 import { getWeeklyStockReport } from '../api/productApi';
 
@@ -63,7 +64,7 @@ function WeeklyStockReport() {
 
       <main className="main">
         <header className="main-header">
-          <h1 className="main-title">Weekly Stock Report</h1>
+          <h1 className="main-title">Weekly Stock Report (Last 7 Days)</h1>
         </header>
 
         {loading && <p>Loading report...</p>}
@@ -75,21 +76,66 @@ function WeeklyStockReport() {
               <tr>
                 <th>Product ID</th>
                 <th>Product Name</th>
-                <th>Initial Stock</th>
-                <th>Sold This Week</th>
-                <th>Remaining Stock</th>
+                <th>Current Stock</th>
+                <th>Total Orders (7 Days)</th>
+                <th>Accepted Orders (7 Days)</th>
+                <th>Pending Orders (7 Days)</th>
+                <th>Denied Orders (7 Days)</th>
+                <th>Order Progress</th>
               </tr>
             </thead>
             <tbody>
-              {reportData.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.productName}</td>
-                  <td>{item.initialStock}</td>
-                  <td>{item.sold}</td>
-                  <td>{item.remainingStock}</td>
-                </tr>
-              ))}
+              {reportData.map((item) => {
+                const totalOrders = item.totalOrders || 0;
+                const acceptedOrders = item.acceptedOrders || 0;
+                const pendingOrders = item.pendingOrders || 0;
+                const deniedOrders = item.deniedOrders || 0;
+                
+                const acceptedPercentage = totalOrders > 0 ? (acceptedOrders / totalOrders) * 100 : 0;
+                const pendingPercentage = totalOrders > 0 ? (pendingOrders / totalOrders) * 100 : 0;
+                const deniedPercentage = totalOrders > 0 ? (deniedOrders / totalOrders) * 100 : 0;
+                
+                return (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.productName}</td>
+                    <td>{item.currentStock}</td>
+                    <td>{totalOrders}</td>
+                    <td>{acceptedOrders}</td>
+                    <td>{pendingOrders}</td>
+                    <td>{deniedOrders}</td>
+                    <td>
+                      <div className="progress-container">
+                        <div className="progress-bar">
+                          <div 
+                            className="progress-accepted" 
+                            style={{ width: `${acceptedPercentage}%` }}
+                          ></div>
+                          <div 
+                            className="progress-pending" 
+                            style={{ 
+                              width: `${pendingPercentage}%`, 
+                              marginLeft: `${acceptedPercentage}%` 
+                            }}
+                          ></div>
+                          <div 
+                            className="progress-denied" 
+                            style={{ 
+                              width: `${deniedPercentage}%`, 
+                              marginLeft: `${acceptedPercentage + pendingPercentage}%` 
+                            }}
+                          ></div>
+                        </div>
+                        <div className="progress-labels">
+                          <span className="accepted-label">Accepted: {acceptedPercentage.toFixed(1)}%</span>
+                          <span className="pending-label">Pending: {pendingPercentage.toFixed(1)}%</span>
+                          <span className="denied-label">Denied: {deniedPercentage.toFixed(1)}%</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

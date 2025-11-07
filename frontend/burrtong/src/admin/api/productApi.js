@@ -73,7 +73,7 @@ export const deleteProduct = async (productId) => {
 
 export const getWeeklyStockReport = async () => {
   const token = localStorage.getItem('authToken');
-  const response = await fetch(`${API_BASE_URL}/api/products/stock-report`, {
+  const response = await fetch(`${API_BASE_URL}/api/admin/stock-report`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },

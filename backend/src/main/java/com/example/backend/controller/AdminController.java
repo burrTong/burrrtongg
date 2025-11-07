@@ -2,20 +2,26 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.User;
 import com.example.backend.service.UserService;
+import com.example.backend.service.StockReportService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
 
     private final UserService userService;
+    private final StockReportService stockReportService;
 
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, StockReportService stockReportService) {
         this.userService = userService;
+        this.stockReportService = stockReportService;
     }
 
     @GetMapping("/users")
@@ -40,5 +46,10 @@ public class AdminController {
         dashboard.totalSales = 50000.0;
         dashboard.bestSellingProduct = "Running Shoes";
         return dashboard;
+    }
+
+    @GetMapping("/stock-report")
+    public List<Map<String, Object>> getWeeklyStockReport() {
+        return stockReportService.getWeeklyStockReport();
     }
 }
