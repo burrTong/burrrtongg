@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllOrders, updateOrderStatus, denyOrder } from '../api/orderApi'; // Import denyOrder
+import { PDFService } from '../../user/utils/PDFService'; // Import PDFService
 import '../css/ProductList.css'; // Import shared CSS
 import BurtongLogo from '../../assets/Burtong_logo.png'; // Import logo
 
@@ -57,6 +58,19 @@ function OrderList() {
     }
   };
 
+  const handlePrintPDF = (order, download = false) => {
+    try {
+      if (download) {
+        PDFService.downloadOrderPDF(order, true); // true = admin view
+      } else {
+        PDFService.printOrderPDF(order, true); // true = admin view
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    }
+  };
+
   return (
     <div className="dashboard">
       <aside className="sidebar">
@@ -109,7 +123,11 @@ function OrderList() {
                 <tr key={order.id}>
                   <td>#{order.id}</td>
                   <td>
-                    <button className="print-pdf-btn" disabled>
+                    <button 
+                      className="print-pdf-btn"
+                      onClick={() => handlePrintPDF(order, true)}
+                      style={{fontSize: '0.8rem', padding: '4px 8px'}}
+                    >
                       Print PDF
                     </button>
                   </td>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getOrdersByCustomerId } from "../api/orderApi";
 import { getAllProducts } from "../api/productApi";
+import { PDFService } from "../utils/PDFService";
 import "../css/OrderHistory.css";
 
 function OrderHistory() {
@@ -10,6 +11,19 @@ function OrderHistory() {
   const [loading, setLoading] = useState(true);
   const customerId = localStorage.getItem("userId");
   const navigate = useNavigate();
+
+  const handlePrintPDF = (order, download = false) => {
+    try {
+      if (download) {
+        PDFService.downloadOrderPDF(order, false); // false = customer view
+      } else {
+        PDFService.printOrderPDF(order, false); // false = customer view
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    }
+  };
 
   const handleReorder = async (order) => {
     try {
@@ -136,7 +150,10 @@ function OrderHistory() {
                       {order.status || 'UNKNOWN'}
                     </div>
                     <div className="order-actions">
-                      <button className="action-btn print-btn" disabled>
+                      <button 
+                        className="action-btn download-btn"
+                        onClick={() => handlePrintPDF(order, true)}
+                      >
                         Print PDF
                       </button>
                       <button 
