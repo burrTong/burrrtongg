@@ -13,7 +13,7 @@ export class PDFService {
     pdf.text('Burtong E-commerce', 20, 25);
     
     pdf.setFontSize(16);
-    pdf.text(isAdmin ? 'Order Details (Admin)' : 'Order Receipt', 20, 40);
+    pdf.text('Order Receipt', 20, 40);
     
     // Order Info
     pdf.setFontSize(12);
@@ -21,27 +21,27 @@ export class PDFService {
     pdf.text(`Date: ${new Date(order.orderDate).toLocaleDateString()}`, 20, 65);
     pdf.text(`Status: ${order.status}`, 20, 75);
     
-    if (order.customer && isAdmin) {
+    if (order.customer) {
       pdf.text(`Customer: ${order.customer.username}`, 20, 85);
     }
     
     // Line separator
     pdf.setDrawColor(200, 200, 200);
-    pdf.line(20, 90, 190, 90);
+    pdf.line(20, 95, 190, 95);
     
     // Items header
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Item', 20, 105);
-    pdf.text('Qty', 120, 105);
-    pdf.text('Price', 140, 105);
-    pdf.text('Total', 165, 105);
+    pdf.text('Item', 20, 110);
+    pdf.text('Qty', 120, 110);
+    pdf.text('Price', 140, 110);
+    pdf.text('Total', 165, 110);
     
-    pdf.line(20, 108, 190, 108);
+    pdf.line(20, 113, 190, 113);
     
     // Items
     pdf.setFont('helvetica', 'normal');
-    let yPosition = 120;
+    let yPosition = 125;
     let subtotal = 0;
     
     order.orderItems.forEach((item, index) => {
