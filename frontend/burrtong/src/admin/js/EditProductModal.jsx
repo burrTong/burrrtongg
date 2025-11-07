@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllCategories } from '../api/productApi';
+import { getAllCategories } from '../api/categoryApi';
 import '../css/NewProductModal.css';
 
 function EditProductModal({ isOpen, onClose, product, onUpdateProduct }) {

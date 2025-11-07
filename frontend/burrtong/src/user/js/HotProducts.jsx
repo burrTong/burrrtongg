@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllProducts } from "../api/productApi.js";
+import { getAllProducts } from "../../admin/api/productApi.js";
 import ProductCard from './ProductCard.jsx'; // Add this line
 import "../css/App.css"; // ใช้ไฟล์เดิม เพิ่มคลาสด้านล่างในข้อ 3
 

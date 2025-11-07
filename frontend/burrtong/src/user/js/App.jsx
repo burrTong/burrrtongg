@@ -38,7 +38,7 @@ function App() {
             element={<Cart cart={cart} setCart={setCart} />}
           />
           {/* /home/orders */}
-          <Route path="orders" element={<OrderHistory />} />
+          <Route path="orders" element={<OrderHistory cart={cart} setCart={setCart} />} />
           {/* /home/search */}
           <Route path="search" element={<SearchResults />} />
         </Routes>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductById } from '../api/productApi.js';
+import { getProductById } from '../../admin/api/productApi.js';
 import '../css/ProductDetail.css';
 
 const API_BASE_URL = 'http://localhost:8080'; // Define API base URL

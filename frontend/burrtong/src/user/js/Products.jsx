@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllProducts } from '../api/productApi.js';
+import { getAllProducts } from '../../admin/api/productApi.js';
 import { getAllCategories, getProductsByCategory } from '../api/categoryApi.js';
 import ProductCard from './ProductCard.jsx';
 import '../css/Products.css';

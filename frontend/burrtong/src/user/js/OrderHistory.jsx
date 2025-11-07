@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { getOrdersByCustomerId } from "../api/orderApi";
+import { getProductById } from "../../admin/api/productApi";
+import { useNavigate } from "react-router-dom";
 import "../css/OrderHistory.css";
 
-function OrderHistory() {
+function OrderHistory({ cart, setCart }) {
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const customerId = localStorage.getItem("userId");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (customerId) {
@@ -18,6 +21,38 @@ function OrderHistory() {
       setLoading(false);
     }
   }, [customerId]);
+
+  const handleReorder = async (order) => {
+    let allItemsAvailable = true;
+    const itemsToAdd = [];
+    let unavailableItems = [];
+
+    for (const item of order.orderItems) {
+      try {
+        const product = await getProductById(item.product.id);
+        if (product.stock >= item.quantity) {
+          itemsToAdd.push({ ...product, quantity: item.quantity });
+        } else {
+          allItemsAvailable = false;
+          unavailableItems.push({ name: product.name, requested: item.quantity, available: product.stock });
+        }
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+        allItemsAvailable = false;
+        unavailableItems.push({ name: item.product.name, requested: item.quantity, available: 'unknown' });
+      }
+    }
+
+    if (allItemsAvailable) {
+      setCart(itemsToAdd);
+      navigate("/home/cart");
+    } else {
+      const warningMessage = unavailableItems.map(item => 
+        `${item.name} (requested: ${item.requested}, available: ${item.available})`
+      ).join('\n');
+      alert(`Some items are not available in the desired quantity:\n${warningMessage}`);
+    }
+  };
 
   if (loading) {
     return (
@@ -77,7 +112,7 @@ function OrderHistory() {
                       <button className="action-btn print-btn" disabled>
                         Print PDF
                       </button>
-                      <button className="action-btn reorder-btn" disabled>
+                      <button className="action-btn reorder-btn" onClick={() => handleReorder(order)}>
                         Re-order
                       </button>
                     </div>

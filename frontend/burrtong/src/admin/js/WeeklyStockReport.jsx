@@ -75,9 +75,10 @@ function WeeklyStockReport() {
               <tr>
                 <th>Product ID</th>
                 <th>Product Name</th>
-                <th>Initial Stock</th>
-                <th>Sold This Week</th>
-                <th>Remaining Stock</th>
+                <th>Current Stock</th>
+                <th>Total Orders (7 Days)</th>
+                <th>Accepted Orders (7 Days)</th>
+                <th>Denied Orders (7 Days)</th>
               </tr>
             </thead>
             <tbody>
@@ -86,8 +87,9 @@ function WeeklyStockReport() {
                   <td>{item.id}</td>
                   <td>{item.productName}</td>
                   <td>{item.initialStock}</td>
-                  <td>{item.sold}</td>
-                  <td>{item.remainingStock}</td>
+                  <td>{item.totalOrders}</td>
+                  <td>{item.acceptedOrders}</td>
+                  <td>{item.deniedOrders}</td>
                 </tr>
               ))}
             </tbody>

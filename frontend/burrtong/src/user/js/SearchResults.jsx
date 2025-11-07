@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { searchProducts } from '../api/productApi';
+import { searchProducts } from '../../admin/api/productApi';
 import ProductCard from './ProductCard';
 import '../css/Products.css';
 

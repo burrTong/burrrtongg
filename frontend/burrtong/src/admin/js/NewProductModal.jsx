@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllCategories } from '../api/productApi'; // Import getAllCategories
+import { getAllCategories } from '../api/categoryApi'; // Import getAllCategories
 import '../css/NewProductModal.css'; // We will create this file for styling
 
 function NewProductModal({ isOpen, onClose, onCreateProduct }) {

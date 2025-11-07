@@ -46,13 +46,7 @@ export const updateProduct = async (productId, formData) => {
   return await response.json();
 };
 
-export const getAllCategories = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/categories`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch categories');
-  }
-  return await response.json();
-};
+
 
 export const deleteProduct = async (productId) => {
   const token = localStorage.getItem('authToken');
@@ -84,5 +78,21 @@ export const getWeeklyStockReport = async () => {
     throw new Error(errorBody.message || 'Failed to fetch weekly stock report');
   }
 
+  return await response.json();
+};
+
+export const getProductById = async (productId) => {
+  const response = await fetch(`${API_BASE_URL}/api/products/${productId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch product');
+  }
+  return await response.json();
+};
+
+export const searchProducts = async (query) => {
+  const response = await fetch(`${API_BASE_URL}/api/products/search?name=${query}`);
+  if (!response.ok) {
+    throw new Error('Failed to search products');
+  }
   return await response.json();
 };
