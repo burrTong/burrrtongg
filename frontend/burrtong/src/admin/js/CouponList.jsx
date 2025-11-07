@@ -107,6 +107,9 @@ function CouponList() {
         <td>{coupon.discountType}</td>
         <td>{coupon.discountType === 'FIXED' ? `${coupon.discountValue}.-` : `${coupon.discountValue}%`}</td>
         <td>
+          {coupon.minPurchaseAmount ? `$${coupon.minPurchaseAmount}` : 'No min.'}
+        </td>
+        <td>
           <span className={`expiry-date ${isExpired ? 'expired' : isExpiringSoon ? 'expiring-soon' : ''}`}>
             {expirationDate.toLocaleDateString()}
             {isExpired && <span className="expiry-label"> (Expired)</span>}
@@ -230,6 +233,7 @@ function CouponList() {
                   <th>Code</th>
                   <th>Type</th>
                   <th>Value</th>
+                  <th>Min Purchase</th>
                   <th>Expires</th>
                   <th>Max Uses</th>
                   <th>Times Used</th>
