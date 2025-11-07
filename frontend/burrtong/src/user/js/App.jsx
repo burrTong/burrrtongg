@@ -14,8 +14,6 @@ import "../css/App.css";     // layout/section
 import "../css/Navbar.css";  // ควรมาทีหลัง
 
 function App() {
-  const [cart, setCart] = useState([]);
-
   return (
     <>
       {/* Navbar อยู่นอก container เพื่อคงที่ทุกหน้าใน /home */}
@@ -30,12 +28,12 @@ function App() {
           {/* /home/products/:productId */}
           <Route
             path="products/:productId"
-            element={<ProductDetail cart={cart} setCart={setCart} />}
+            element={<ProductDetail />}
           />
           {/* /home/cart */}
           <Route
             path="cart"
-            element={<Cart cart={cart} setCart={setCart} />}
+            element={<Cart />}
           />
           {/* /home/orders */}
           <Route path="orders" element={<OrderHistory />} />

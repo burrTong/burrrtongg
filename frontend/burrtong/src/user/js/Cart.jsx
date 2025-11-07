@@ -13,11 +13,23 @@ const TrashIcon = () => (
   </svg>
 );
 
-const Cart = ({ cart, setCart }) => {
+const Cart = () => {
+  const [cart, setCart] = useState([]);
   const [checkoutStatus, setCheckoutStatus] = useState('idle'); // idle, success, error
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
+
+  // Load cart from localStorage on component mount
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    setCart(savedCart);
+  }, []);
+
+  // Save cart to localStorage whenever cart changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
 
   const calculateTotal = () => {
     return cart.reduce((total, item) => {

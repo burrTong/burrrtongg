@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getOrdersByCustomerId } from "../api/orderApi";
+import { getAllProducts } from "../api/productApi";
 import "../css/OrderHistory.css";
 
 function OrderHistory() {
@@ -7,6 +9,66 @@ function OrderHistory() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const customerId = localStorage.getItem("userId");
+  const navigate = useNavigate();
+
+  const handleReorder = async (order) => {
+    try {
+      // Get current product data to check stock and availability
+      const currentProducts = await getAllProducts();
+      const unavailableItems = [];
+      const availableItems = [];
+
+      // Check each item in the order
+      for (const orderItem of order.orderItems) {
+        const currentProduct = currentProducts.find(p => p.id === orderItem.product.id);
+        
+        if (!currentProduct) {
+          unavailableItems.push(`${orderItem.product.name} - Product no longer available`);
+        } else if (currentProduct.stock < orderItem.quantity) {
+          unavailableItems.push(`${orderItem.product.name} - Insufficient stock (Available: ${currentProduct.stock}, Requested: ${orderItem.quantity})`);
+        } else {
+          availableItems.push({
+            id: currentProduct.id,
+            name: currentProduct.name,
+            price: currentProduct.price,
+            quantity: orderItem.quantity,
+            imageUrl: currentProduct.imageUrl
+          });
+        }
+      }
+
+      // If there are unavailable items, show popup and don't proceed
+      if (unavailableItems.length > 0) {
+        const message = "The following items cannot be re-ordered:\n\n" + 
+                       unavailableItems.join('\n') + 
+                       "\n\nPlease check the product page for current availability.";
+        alert(message);
+        return;
+      }
+
+      // If all items are available, add them to cart and navigate
+      const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      
+      // Add each available item to cart
+      availableItems.forEach(item => {
+        const existingItem = existingCart.find(cartItem => cartItem.id === item.id);
+        if (existingItem) {
+          existingItem.quantity += item.quantity;
+        } else {
+          existingCart.push(item);
+        }
+      });
+
+      localStorage.setItem('cart', JSON.stringify(existingCart));
+      
+      // Navigate to cart page
+      navigate('/home/cart');
+      
+    } catch (error) {
+      console.error('Error during reorder:', error);
+      alert('Error processing re-order. Please try again.');
+    }
+  };
 
   useEffect(() => {
     if (customerId) {
@@ -77,7 +139,10 @@ function OrderHistory() {
                       <button className="action-btn print-btn" disabled>
                         Print PDF
                       </button>
-                      <button className="action-btn reorder-btn" disabled>
+                      <button 
+                        className="action-btn reorder-btn" 
+                        onClick={() => handleReorder(order)}
+                      >
                         Re-order
                       </button>
                     </div>

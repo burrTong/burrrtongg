@@ -5,7 +5,7 @@ import '../css/ProductDetail.css';
 
 const API_BASE_URL = 'http://localhost:8080'; // Define API base URL
 
-const ProductDetail = ({ cart, setCart }) => {
+const ProductDetail = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -48,19 +48,17 @@ const ProductDetail = ({ cart, setCart }) => {
       return;
     }
 
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingProduct = cart.find(item => item.id === product.id);
+    
     if (existingProduct) {
-      setCart(
-        cart.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        )
-      );
+      existingProduct.quantity += quantity;
     } else {
       const cartItem = { ...product, quantity, size: product.size }; // Use product.size
-      setCart([...cart, cartItem]);
+      cart.push(cartItem);
     }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
     navigate('/home/cart');
   };
 
