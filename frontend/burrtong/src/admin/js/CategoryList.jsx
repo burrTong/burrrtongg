@@ -121,6 +121,8 @@ function CategoryList() {
             <li><Link to="/admin/orders">📋Orders' List</Link></li>
             <li><Link to="/admin/coupons">🎟️Coupons' List</Link></li>
             <li><Link to="/admin/categories" className="active">📂Categories' List</Link></li>
+
+            <li><Link to="/admin/stock-report">📊Weekly Stock Report</Link></li>
           </ul>
         </div>
         <div className="sidebar-footer">

@@ -261,6 +261,8 @@ function ProductList() {
 
             <li><Link to="/admin/categories">📂Categories' List</Link></li>
 
+            <li><Link to="/admin/stock-report">📊Weekly Stock Report</Link></li>
+
           </ul>
 
         </div>

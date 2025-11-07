@@ -70,3 +70,19 @@ export const deleteProduct = async (productId) => {
 
   return true; // Indicate successful deletion
 };
+
+export const getWeeklyStockReport = async () => {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`${API_BASE_URL}/api/products/stock-report`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new Error(errorBody.message || 'Failed to fetch weekly stock report');
+  }
+
+  return await response.json();
+};

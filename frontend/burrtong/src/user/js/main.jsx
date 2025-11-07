@@ -12,6 +12,7 @@ import CouponList from "../../admin/js/CouponList.jsx"; // Import CouponList
 import CategoryList from "../../admin/js/CategoryList.jsx"; // Import CategoryList
 import AdminLoginPage from "../../admin/js/AdminLoginPage.jsx";
 import AdminSignupPage from "../../admin/js/AdminSignupPage.jsx";
+import WeeklyStockReport from "../../admin/js/WeeklyStockReport.jsx";
 
 
 // CSS
@@ -36,6 +37,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/admin/orders" element={<OrderList />} />
         <Route path="/admin/coupons" element={<CouponList />} />
         <Route path="/admin/categories" element={<CategoryList />} />
+        <Route path="/admin/stock-report" element={<WeeklyStockReport />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
