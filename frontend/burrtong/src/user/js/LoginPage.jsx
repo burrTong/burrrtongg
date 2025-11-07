@@ -21,16 +21,17 @@ const LoginPage = () => {
     }
 
     try {
-      const userData = await login(email, password);
+      const loginResponse = await login(email, password);
       
       // Store user info for display
-      localStorage.setItem('username', userData.username);
-      localStorage.setItem('userId', userData.id);
+      localStorage.setItem('username', loginResponse.username);
+      localStorage.setItem('userId', loginResponse.id);
+      localStorage.setItem('authToken', loginResponse.token);
 
       // ตรวจสอบ role จาก response ที่ได้
-      if (userData.role === 'CUSTOMER') {
+      if (loginResponse.role === 'CUSTOMER') {
         navigate('/home'); // ไปหน้า user
-      } else if (userData.role === 'ADMIN') {
+      } else if (loginResponse.role === 'ADMIN') {
         setError('Admin accounts should log in via the admin portal.');
       } else {
         // กรณีไม่มี role หรือ role ไม่ตรงกับที่คาดหวัง

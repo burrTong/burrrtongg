@@ -4,6 +4,8 @@ import { getAllOrders, updateOrderStatus, denyOrder } from '../api/orderApi'; //
 import '../css/ProductList.css'; // Import shared CSS
 import BurtongLogo from '../../assets/Burtong_logo.png'; // Import logo
 
+const API_BASE_URL = 'http://localhost:8080'; // Define API base URL
+
 function OrderList() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +56,40 @@ function OrderList() {
     } catch (err) {
       console.error(`Failed to deny order ${orderId}:`, err);
       alert(`Failed to deny order: ${err.message}`);
+    }
+  };
+
+  const handleDownloadPdf = async (orderId) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert("Please log in to download PDF reports.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reports/orders/${orderId}/pdf`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to download PDF: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `order_${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      alert(`Failed to download PDF report: ${error.message}`);
     }
   };
 
@@ -109,7 +145,7 @@ function OrderList() {
                 <tr key={order.id}>
                   <td>#{order.id}</td>
                   <td>
-                    <button className="print-pdf-btn" disabled>
+                    <button className="print-pdf-btn" onClick={() => handleDownloadPdf(order.id)}>
                       Print PDF
                     </button>
                   </td>

@@ -54,6 +54,40 @@ function OrderHistory({ cart, setCart }) {
     }
   };
 
+  const handleDownloadPdf = async (orderId) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert("Please log in to download PDF reports.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/reports/orders/${orderId}/pdf`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to download PDF: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `order_${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      alert(`Failed to download PDF report: ${error.message}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="order-history-container">
@@ -109,7 +143,7 @@ function OrderHistory({ cart, setCart }) {
                       {order.status || 'UNKNOWN'}
                     </div>
                     <div className="order-actions">
-                      <button className="action-btn print-btn" disabled>
+                      <button className="action-btn print-btn" onClick={() => handleDownloadPdf(order.id)}>
                         Print PDF
                       </button>
                       <button className="action-btn reorder-btn" onClick={() => handleReorder(order)}>

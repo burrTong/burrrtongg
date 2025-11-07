@@ -7,7 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List; // Import List
 
+import java.time.LocalDateTime;
+
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     List<OrderItem> findByProduct(Product product); // New method
+
+    List<OrderItem> findByOrder_OrderDateAfter(LocalDateTime date);
 }

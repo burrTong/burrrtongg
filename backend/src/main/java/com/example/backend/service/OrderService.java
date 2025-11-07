@@ -189,4 +189,10 @@ public class OrderService {
         logger.info("Order {} status set to CANCELED. Saving order.", orderId);
         return orderRepository.save(order);
     }
+
+    public boolean isOwner(Long orderId, String username) {
+        return orderRepository.findById(orderId)
+                .map(order -> order.getCustomer().getUsername().equals(username))
+                .orElse(false);
+    }
 }

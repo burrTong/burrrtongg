@@ -5,8 +5,10 @@ import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.exception.UserAlreadyExistsException;
 import com.example.backend.model.Role;
 import com.example.backend.model.dto.LoginRequest;
+import com.example.backend.model.dto.LoginResponse;
 import com.example.backend.model.dto.RegisterRequest;
 import com.example.backend.repository.UserRepository;
+import com.example.backend.util.JwtUtil;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,10 +20,12 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public User registerCustomer(RegisterRequest registerRequest) {
@@ -46,13 +50,14 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public User login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + loginRequest.getUsername()));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
              throw new BadCredentialsException("Invalid password");
         }
-        return user;
+        final String jwt = jwtUtil.generateToken(user);
+        return new LoginResponse(jwt, user);
     }
 }

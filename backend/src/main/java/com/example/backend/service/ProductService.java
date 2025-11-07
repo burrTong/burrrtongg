@@ -1,13 +1,16 @@
 package com.example.backend.service;
 
 import com.example.backend.entity.Category;
+import com.example.backend.entity.Order;
 import com.example.backend.entity.OrderItem;
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.model.OrderStatus;
 import com.example.backend.model.dto.ProductRequest;
 import com.example.backend.repository.CategoryRepository;
 import com.example.backend.repository.OrderItemRepository;
+import com.example.backend.repository.OrderRepository;
 import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -26,14 +29,16 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final OrderItemRepository orderItemRepository; // New
+    private final OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository; // New
     private final String UPLOAD_DIR = "uploads/images";
 
-    public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository, OrderItemRepository orderItemRepository) {
+    public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository, OrderItemRepository orderItemRepository, OrderRepository orderRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
-        this.orderItemRepository = orderItemRepository; // Initialize
+        this.orderItemRepository = orderItemRepository;
+        this.orderRepository = orderRepository; // Initialize
         // Ensure upload directory exists
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
@@ -150,5 +155,48 @@ public class ProductService {
         return productRepository.findById(productId)
                 .map(product -> product.getSeller().getUsername().equals(username))
                 .orElse(false);
+    }
+
+    public List<com.example.backend.model.dto.WeeklyStockReportDTO> getWeeklyStockReport() {
+        java.time.LocalDateTime sevenDaysAgo = java.time.LocalDateTime.now().minusDays(7);
+
+        List<Order> recentOrders = orderRepository.findByOrderDateAfter(sevenDaysAgo);
+
+        java.util.Map<Long, Integer> totalOrdersMap = new java.util.HashMap<>();
+        java.util.Map<Long, Integer> acceptedOrdersMap = new java.util.HashMap<>();
+        java.util.Map<Long, Integer> deniedOrdersMap = new java.util.HashMap<>();
+
+        for (Order order : recentOrders) {
+            for (OrderItem item : order.getOrderItems()) {
+                Long productId = item.getProduct().getId();
+                totalOrdersMap.merge(productId, item.getQuantity(), Integer::sum);
+
+                if (order.getStatus() == OrderStatus.DELIVERED) {
+                    acceptedOrdersMap.merge(productId, item.getQuantity(), Integer::sum);
+                } else if (order.getStatus() == OrderStatus.CANCELED) {
+                    deniedOrdersMap.merge(productId, item.getQuantity(), Integer::sum);
+                }
+            }
+        }
+
+        List<Product> allProducts = productRepository.findAll();
+        java.util.List<com.example.backend.model.dto.WeeklyStockReportDTO> report = new java.util.ArrayList<>();
+
+        for (Product product : allProducts) {
+            Integer totalOrders = totalOrdersMap.getOrDefault(product.getId(), 0);
+            Integer acceptedOrders = acceptedOrdersMap.getOrDefault(product.getId(), 0);
+            Integer deniedOrders = deniedOrdersMap.getOrDefault(product.getId(), 0);
+
+            report.add(new com.example.backend.model.dto.WeeklyStockReportDTO(
+                    product.getId(),
+                    product.getName(),
+                    product.getStock(), // initialStock now represents current stock
+                    totalOrders,
+                    acceptedOrders,
+                    deniedOrders
+            ));
+        }
+
+        return report;
     }
 }

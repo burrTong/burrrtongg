@@ -63,4 +63,9 @@ public class ProductController {
         productService.deleteProduct(id);
         return "Product deleted with id " + id;
     }
+
+    @GetMapping("/stock-report")
+    public ResponseEntity<List<com.example.backend.model.dto.WeeklyStockReportDTO>> getWeeklyStockReport() {
+        return ResponseEntity.ok(productService.getWeeklyStockReport());
+    }
 }

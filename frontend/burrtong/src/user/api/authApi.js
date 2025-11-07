@@ -25,12 +25,9 @@ export const login = async (email, password) => {
   }
 
   // If response.ok is true, it should be a successful JSON response
-  try {
-    return JSON.parse(responseBodyText); // Parse the text as JSON
-  } catch (e) {
-    console.error("Login API Success, but response was not valid JSON:", responseBodyText);
-    throw new Error('Login successful, but response was not valid JSON.');
-  }
+  const loginResponse = JSON.parse(responseBodyText);
+  console.log("Login Response from Backend:", loginResponse);
+  return loginResponse;
 };
 
 export const getAllOrders = async () => {

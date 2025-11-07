@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.User;
 import com.example.backend.model.dto.LoginRequest;
+import com.example.backend.model.dto.LoginResponse;
 import com.example.backend.model.dto.RegisterRequest;
 import com.example.backend.service.AuthService;
 import org.springframework.http.HttpStatus;
@@ -34,8 +35,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
-        User user = authService.login(loginRequest);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        LoginResponse loginResponse = authService.login(loginRequest);
+        return ResponseEntity.ok(loginResponse);
     }
 }
