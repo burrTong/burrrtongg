@@ -8,6 +8,8 @@ import com.example.backend.model.dto.ProductRequest;
 import com.example.backend.repository.CategoryRepository;
 import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
+import com.example.elasticsearch.ProductDocument;
+import com.example.elasticsearch.service.ProductSearchService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +40,8 @@ class ProductServiceTest {
     private CategoryRepository categoryRepository;
     @Mock
     private com.example.backend.repository.OrderItemRepository orderItemRepository;
+    @Mock
+    private ProductSearchService productSearchService;
 
     @InjectMocks
     private ProductService productService;
@@ -146,6 +150,7 @@ class ProductServiceTest {
         assertEquals(adminUser, createdProduct.getSeller());
         assertEquals(category, createdProduct.getCategory());
         verify(productRepository, times(1)).save(any(Product.class));
+        verify(productSearchService, times(1)).saveProduct(any(ProductDocument.class));
     }
 
     @Test
@@ -172,6 +177,7 @@ class ProductServiceTest {
         assertEquals("New Product", createdProduct.getName());
         assertEquals("/custom/image.jpg", createdProduct.getImageUrl());
         verify(productRepository, times(1)).save(any(Product.class));
+        verify(productSearchService, times(1)).saveProduct(any(ProductDocument.class));
     }
 
     @Test
@@ -197,6 +203,7 @@ class ProductServiceTest {
         assertEquals("New Product", createdProduct.getName());
         assertEquals("/assets/product.png", createdProduct.getImageUrl());
         verify(productRepository, times(1)).save(any(Product.class));
+        verify(productSearchService, times(1)).saveProduct(any(ProductDocument.class));
     }
 
     @Test
@@ -223,7 +230,8 @@ class ProductServiceTest {
         when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> productService.createProduct(productRequest, null));
-        verify(categoryRepository, times(1)).findById(99L);
+        verify(categoryRepository, times(1)
+        ).findById(99L);
         verify(productRepository, never()).save(any(Product.class));
     }
 
@@ -245,6 +253,7 @@ class ProductServiceTest {
         assertEquals(110, updatedProduct.getStock());
         verify(productRepository, times(1)).findById(1L);
         verify(productRepository, times(1)).save(any(Product.class));
+        verify(productSearchService, times(1)).saveProduct(any(ProductDocument.class));
     }
 
     @Test
@@ -269,6 +278,7 @@ class ProductServiceTest {
         verify(orderItemRepository, times(1)).findByProduct(product1);
         verify(orderItemRepository, times(1)).deleteAll(java.util.Collections.emptyList());
         verify(productRepository, times(1)).delete(product1);
+        verify(productSearchService, times(1)).deleteProduct("1");
     }
 
     @Test

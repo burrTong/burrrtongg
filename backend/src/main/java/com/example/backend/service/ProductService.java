@@ -10,6 +10,8 @@ import com.example.backend.repository.CategoryRepository;
 import com.example.backend.repository.OrderItemRepository;
 import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
+import com.example.elasticsearch.ProductDocument;
+import com.example.elasticsearch.service.ProductSearchService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,8 +19,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class ProductService {
@@ -27,13 +32,15 @@ public class ProductService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final OrderItemRepository orderItemRepository; // New
+    private final ProductSearchService productSearchService;
     private final String UPLOAD_DIR = "uploads/images";
 
-    public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository, OrderItemRepository orderItemRepository) {
+    public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository, OrderItemRepository orderItemRepository, ProductSearchService productSearchService) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.orderItemRepository = orderItemRepository; // Initialize
+        this.productSearchService = productSearchService;
         // Ensure upload directory exists
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
@@ -52,7 +59,11 @@ public class ProductService {
     }
 
     public List<Product> searchProducts(String name) {
-        return productRepository.findByNameContainingIgnoreCase(name);
+        Iterable<ProductDocument> documents = productSearchService.searchProducts(name);
+        List<Long> ids = StreamSupport.stream(documents.spliterator(), false)
+                .map(doc -> Long.parseLong(doc.getId()))
+                .collect(Collectors.toList());
+        return productRepository.findAllById(ids);
     }
 
     public List<Product> getProductsByCategory(Long categoryId) {
@@ -98,7 +109,15 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Default admin user not found. Please create 'admin@admin.com' in database."));
         product.setSeller(seller);
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+
+        ProductDocument productDocument = new ProductDocument();
+        productDocument.setId(savedProduct.getId().toString());
+        productDocument.setName(savedProduct.getName());
+        productDocument.setDescription(savedProduct.getDescription());
+        productSearchService.saveProduct(productDocument);
+
+        return savedProduct;
     }
 
     public Product updateProduct(Long id, ProductRequest productRequest, MultipartFile imageFile) {
@@ -131,7 +150,15 @@ public class ProductService {
             product.setCategory(category);
         }
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+
+        ProductDocument productDocument = new ProductDocument();
+        productDocument.setId(savedProduct.getId().toString());
+        productDocument.setName(savedProduct.getName());
+        productDocument.setDescription(savedProduct.getDescription());
+        productSearchService.saveProduct(productDocument);
+
+        return savedProduct;
     }
 
     // @PreAuthorize("@productService.isOwner(#id, principal.username) or hasAuthority('ADMIN')") // Commented out
@@ -144,6 +171,7 @@ public class ProductService {
         orderItemRepository.deleteAll(orderItems);
 
         productRepository.delete(product); // Delete the product
+        productSearchService.deleteProduct(id.toString());
     }
 
     public boolean isOwner(Long productId, String username) {

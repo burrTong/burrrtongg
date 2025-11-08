@@ -24,7 +24,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AuthController.class)
+import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
+
+@WebMvcTest(
+    controllers = AuthController.class,
+    excludeAutoConfiguration = {
+        ElasticsearchRestClientAutoConfiguration.class,
+        ElasticsearchDataAutoConfiguration.class
+    }
+)
 class AuthControllerTest {
 
     private MockMvc mockMvc;

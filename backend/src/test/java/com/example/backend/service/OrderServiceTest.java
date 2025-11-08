@@ -79,6 +79,8 @@ class OrderServiceTest {
     @Test
     void denyOrder_shouldChangeStatusToCanceledAndReturnStock() {
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product1));
+        when(productRepository.findById(2L)).thenReturn(Optional.of(product2));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -118,6 +120,8 @@ class OrderServiceTest {
         order.setCoupon(coupon);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product1));
+        when(productRepository.findById(2L)).thenReturn(Optional.of(product2));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(couponRepository.save(any(Coupon.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -143,6 +147,8 @@ class OrderServiceTest {
         order.setCoupon(coupon);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product1));
+        when(productRepository.findById(2L)).thenReturn(Optional.of(product2));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
