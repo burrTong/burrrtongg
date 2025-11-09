@@ -7,7 +7,7 @@ Notes:
 #>
 
 param(
-    [string]$volumeName = "demo-repository_uploads_data",
+    [string]$volumeName = "burrrtongg_uploads_data",
     [string]$sourceDir = "./docker/uploads/images"
 )
 

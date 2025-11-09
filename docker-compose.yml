@@ -1,6 +1,16 @@
 
 
 services:
+  # Init service to populate uploads volume with default images
+  init-uploads:
+    image: alpine:3.18
+    container_name: init_uploads
+    volumes:
+      - uploads_data:/uploads
+      - ./docker/uploads/images:/source:ro
+    command: sh -c "cp -r /source/. /uploads/ && echo 'Default images copied to uploads volume'"
+    restart: "no"
+
   db:
     image: postgres:15
     container_name: mydb
@@ -21,6 +31,7 @@ services:
       - "${BACKEND_APP_PORT}:${BACKEND_APP_PORT}"
     depends_on:
       - db
+      - init-uploads
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:${POSTGRES_PORT}/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
