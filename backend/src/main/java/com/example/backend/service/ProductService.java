@@ -14,6 +14,8 @@ import com.example.elasticsearch.ProductDocument;
 import com.example.elasticsearch.service.ProductSearchService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.annotation.PostConstruct;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,6 +48,18 @@ public class ProductService {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
         } catch (IOException e) {
             throw new RuntimeException("Could not create upload directory!", e);
+        }
+    }
+
+    @PostConstruct
+    public void indexProducts() {
+        List<Product> products = productRepository.findAll();
+        for (Product product : products) {
+            ProductDocument productDocument = new ProductDocument();
+            productDocument.setId(product.getId().toString());
+            productDocument.setName(product.getName());
+            productDocument.setDescription(product.getDescription());
+            productSearchService.saveProduct(productDocument);
         }
     }
 

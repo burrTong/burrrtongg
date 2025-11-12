@@ -22,7 +22,7 @@ public class ProductSearchService {
     }
 
     public Iterable<ProductDocument> searchProducts(String name) {
-        return productSearchRepository.findByName(name);
+        return productSearchRepository.findByNameFuzzy(name);
     }
 
     public Iterable<ProductDocument> findAll() {
