@@ -71,12 +71,6 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <div className="options">
-            <label>
-              <input type="checkbox" /> Remember me
-            </label>
-            <a href="#">Forgot Password</a>
-          </div>
           <button type="submit" className="login-btn">Login</button>
         </form>
         <div className="signup-link">

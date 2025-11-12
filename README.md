@@ -1,7 +1,21 @@
-👟 E-commerce Platform – รองเท้า (Shoes Marketplace)
+# 👟 E-commerce Platform – รองเท้า (Shoes Marketplace)
 
+## 🚀 Quick Start for Developers
 
-📌 User Stories
+**New to this project? Start here:**
+
+```powershell
+# Clone and setup development environment
+.\scripts\init_dev_environment.ps1
+```
+
+This will set up a complete development environment with baseline data including products, users, coupons, and sample orders.
+
+📖 **See [DEV_SETUP.md](DEV_SETUP.md) for detailed setup guide**
+
+---
+
+## 📌 User Stories
 
 
 ฝั่งลูกค้า (Customer Side)

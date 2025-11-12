@@ -12,7 +12,7 @@ services:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data   # ✅ persist DB data
-      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro # SQL files placed here run on first init
+      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro # ✅ SQL files run on first init
 
   app:
     build: ./backend
@@ -21,12 +21,14 @@ services:
       - "${BACKEND_APP_PORT}:${BACKEND_APP_PORT}"
     depends_on:
       - db
+      - elasticsearch
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:${POSTGRES_PORT}/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - uploads_data:/app/uploads/images # Mount volume for uploaded images
+      - ./docker/uploads/images:/app/uploads/images # Use bind mount to persist images locally
+    restart: on-failure
 
   frontend:
     build: ./frontend/burrtong
@@ -74,5 +76,4 @@ services:
 volumes:
   postgres_data:   # ✅ declare the volume
   pgadmin_data:
-  uploads_data: # Declare the volume for uploaded images
   elasticsearch_data:
