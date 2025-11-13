@@ -1,15 +1,15 @@
 package com.example.backend;
 
-import com.example.elasticsearch.service.ProductSearchService;
+import com.example.backend.config.TestConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.sql.DataSource;
 
@@ -18,10 +18,8 @@ import javax.sql.DataSource;
     "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration,org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration"
 })
 @ActiveProfiles("test")
+@Import(TestConfig.class)
 class BackendApplicationTests {
-
-	@MockBean
-	private ProductSearchService productSearchService;
 
 	@Test
 	void contextLoads() {

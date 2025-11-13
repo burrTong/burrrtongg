@@ -13,7 +13,6 @@ import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.elasticsearch.service.ProductSearchService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -134,7 +133,6 @@ class ProductServiceTest {
     }
 
     @Test
-    @Disabled("Elasticsearch dependency issue in test environment")
     void createProduct_shouldCreateProductWithoutImageFile() {
         ProductRequest request = new ProductRequest();
         request.setName("New Product");
@@ -184,7 +182,6 @@ class ProductServiceTest {
     }
 
     @Test
-    @Disabled("Elasticsearch dependency issue in test environment")
     void updateProduct_shouldUpdateProduct_whenProductExists() {
         ProductRequest request = new ProductRequest();
         request.setName("Updated Product");

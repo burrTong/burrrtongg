@@ -1,11 +1,11 @@
 package com.example.backend.controller;
 
+import com.example.backend.config.TestConfig;
 import com.example.backend.model.dto.LoginRequest;
 import com.example.backend.model.dto.RegisterRequest;
 import com.example.backend.entity.User;
 import com.example.backend.model.Role;
 import com.example.backend.service.AuthService;
-import com.example.elasticsearch.service.ProductSearchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestConfig.class)
 class AuthControllerTest {
 
     @Autowired
@@ -36,9 +38,6 @@ class AuthControllerTest {
 
     @MockBean
     private AuthService authService;
-
-    @MockBean
-    private ProductSearchService productSearchService;
 
     private User testUser;
 
