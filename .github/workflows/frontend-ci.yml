@@ -3,12 +3,8 @@ name: Frontend CI/CD
 on:
   push:
     branches: [ main, develop, 'feature/ci-cd-pipelines' ]
-    paths:
-      - 'frontend/**'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'frontend/**'
 
 jobs:
   test:
