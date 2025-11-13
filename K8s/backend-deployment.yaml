@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          # IMPORTANT: This image must be available in a registry that your Kubernetes cluster can access.
+          # Replace DOCKERHUB_USERNAME with your Docker Hub username.
+          image: phruek07/burrrtongg-app:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: backend-configmap
+            - secretRef:
+                name: postgres-secret
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
