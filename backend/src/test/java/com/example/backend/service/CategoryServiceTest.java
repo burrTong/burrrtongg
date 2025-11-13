@@ -14,7 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,100 +28,90 @@ class CategoryServiceTest {
     @InjectMocks
     private CategoryService categoryService;
 
-    private Category category1;
-    private Category category2;
+    private Category testCategory;
 
     @BeforeEach
     void setUp() {
-        category1 = new Category();
-        category1.setId(1L);
-        category1.setName("Electronics");
-
-        category2 = new Category();
-        category2.setId(2L);
-        category2.setName("Books");
+        testCategory = new Category();
+        testCategory.setId(1L);
+        testCategory.setName("Electronics");
     }
 
     @Test
-    void getAllCategories_shouldReturnAllCategories() {
-        when(categoryRepository.findAll()).thenReturn(Arrays.asList(category1, category2));
+    void getAllCategories_shouldReturnListOfCategories() {
+        Category category2 = new Category();
+        category2.setId(2L);
+        category2.setName("Clothing");
 
-        List<Category> categories = categoryService.getAllCategories();
+        when(categoryRepository.findAll()).thenReturn(Arrays.asList(testCategory, category2));
 
-        assertNotNull(categories);
-        assertEquals(2, categories.size());
-        assertTrue(categories.contains(category1));
-        assertTrue(categories.contains(category2));
+        List<Category> result = categoryService.getAllCategories();
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting("name").contains("Electronics", "Clothing");
         verify(categoryRepository, times(1)).findAll();
     }
 
     @Test
-    void getCategoryById_shouldReturnCategory_whenFound() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category1));
+    void getCategoryById_shouldReturnCategory_whenCategoryExists() {
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
 
-        Category foundCategory = categoryService.getCategoryById(1L);
+        Category result = categoryService.getCategoryById(1L);
 
-        assertNotNull(foundCategory);
-        assertEquals(category1.getName(), foundCategory.getName());
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Electronics");
         verify(categoryRepository, times(1)).findById(1L);
     }
 
     @Test
-    void getCategoryById_shouldThrowResourceNotFoundException_whenNotFound() {
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.empty());
+    void getCategoryById_shouldThrowException_whenCategoryNotFound() {
+        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> categoryService.getCategoryById(1L));
+        assertThatThrownBy(() -> categoryService.getCategoryById(999L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Category not found with id 999");
+    }
+
+    @Test
+    void createCategory_shouldSaveAndReturnCategory() {
+        when(categoryRepository.save(any(Category.class))).thenReturn(testCategory);
+
+        Category result = categoryService.createCategory(testCategory);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Electronics");
+        verify(categoryRepository, times(1)).save(testCategory);
+    }
+
+    @Test
+    void updateCategory_shouldUpdateAndReturnCategory_whenCategoryExists() {
+        Category updatedCategory = new Category();
+        updatedCategory.setName("Updated Electronics");
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(categoryRepository.save(any(Category.class))).thenReturn(testCategory);
+
+        Category result = categoryService.updateCategory(1L, updatedCategory);
+
+        assertThat(result).isNotNull();
+        assertThat(testCategory.getName()).isEqualTo("Updated Electronics");
         verify(categoryRepository, times(1)).findById(1L);
+        verify(categoryRepository, times(1)).save(testCategory);
     }
 
     @Test
-    void createCategory_shouldCreateCategory() {
-        Category newCategory = new Category();
-        newCategory.setName("Clothes");
+    void updateCategory_shouldThrowException_whenCategoryNotFound() {
+        Category updatedCategory = new Category();
+        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
-        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> {
-            Category savedCategory = invocation.getArgument(0);
-            savedCategory.setId(3L);
-            return savedCategory;
-        });
-
-        Category createdCategory = categoryService.createCategory(newCategory);
-
-        assertNotNull(createdCategory);
-        assertEquals("Clothes", createdCategory.getName());
-        assertNotNull(createdCategory.getId());
-        verify(categoryRepository, times(1)).save(any(Category.class));
+        assertThatThrownBy(() -> categoryService.updateCategory(999L, updatedCategory))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Category not found with id 999");
     }
 
     @Test
-    void updateCategory_shouldUpdateCategory_whenFound() {
-        Category categoryDetails = new Category();
-        categoryDetails.setName("Updated Electronics");
-
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category1));
-        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        Category updatedCategory = categoryService.updateCategory(1L, categoryDetails);
-
-        assertNotNull(updatedCategory);
-        assertEquals("Updated Electronics", updatedCategory.getName());
-        verify(categoryRepository, times(1)).findById(1L);
-        verify(categoryRepository, times(1)).save(any(Category.class));
-    }
-
-    @Test
-    void updateCategory_shouldThrowResourceNotFoundException_whenNotFound() {
-        Category categoryDetails = new Category();
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> categoryService.updateCategory(1L, categoryDetails));
-        verify(categoryRepository, times(1)).findById(1L);
-        verify(categoryRepository, never()).save(any(Category.class));
-    }
-
-    @Test
-    void deleteCategory_shouldDeleteCategory_whenFound() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category1));
+    void deleteCategory_shouldDeleteCategory_whenCategoryExists() {
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
         doNothing().when(categoryRepository).deleteById(1L);
 
         categoryService.deleteCategory(1L);
@@ -129,11 +121,14 @@ class CategoryServiceTest {
     }
 
     @Test
-    void deleteCategory_shouldThrowResourceNotFoundException_whenNotFound() {
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.empty());
+    void deleteCategory_shouldThrowException_whenCategoryNotFound() {
+        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> categoryService.deleteCategory(1L));
-        verify(categoryRepository, times(1)).findById(1L);
-        verify(categoryRepository, never()).deleteById(anyLong());
+        assertThatThrownBy(() -> categoryService.deleteCategory(999L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Category not found with id 999");
+
+        verify(categoryRepository, times(1)).findById(999L);
+        verify(categoryRepository, never()).deleteById(any());
     }
 }

@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.entity.User;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.exception.UserAlreadyExistsException;
 import com.example.backend.model.Role;
 import com.example.backend.model.dto.LoginRequest;
 import com.example.backend.model.dto.RegisterRequest;
@@ -12,11 +13,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,126 +29,136 @@ class AuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private AuthService authService;
 
-    private RegisterRequest registerRequestCustomer;
-    private RegisterRequest registerRequestAdmin;
-    private LoginRequest loginRequest;
-    private User customerUser;
-    private User adminUser;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
-        registerRequestCustomer = new RegisterRequest();
-        registerRequestCustomer.setUsername("customer@example.com");
-        registerRequestCustomer.setPassword("password123");
-
-        registerRequestAdmin = new RegisterRequest();
-        registerRequestAdmin.setUsername("admin@example.com");
-        registerRequestAdmin.setPassword("adminpass");
-
-        loginRequest = new LoginRequest();
-        loginRequest.setUsername("customer@example.com");
-        loginRequest.setPassword("password123");
-
-        customerUser = new User();
-        customerUser.setId(1L);
-        customerUser.setUsername("customer@example.com");
-        customerUser.setPassword("encodedPassword");
-        customerUser.setRole(Role.CUSTOMER);
-
-        adminUser = new User();
-        adminUser.setId(2L);
-        adminUser.setUsername("admin@example.com");
-        adminUser.setPassword("encodedAdminPass");
-        adminUser.setRole(Role.ADMIN);
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setUsername("test@example.com");
+        testUser.setPassword("encodedPassword");
+        testUser.setRole(Role.CUSTOMER);
     }
 
     @Test
-    void registerCustomer_shouldCreateNewCustomerUser_whenUserDoesNotExist() {
-        when(userRepository.findByUsername(registerRequestCustomer.getUsername())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(registerRequestCustomer.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User savedUser = invocation.getArgument(0);
-            savedUser.setId(1L);
-            return savedUser;
-        });
+    void registerCustomer_shouldRegisterNewCustomer_whenUsernameNotExists() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("newuser@example.com");
+        request.setPassword("password123");
 
-        User registeredUser = authService.registerCustomer(registerRequestCustomer);
+        when(userRepository.findByUsername("newuser@example.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
 
-        assertNotNull(registeredUser);
-        assertEquals(registerRequestCustomer.getUsername(), registeredUser.getUsername());
-        assertEquals("encodedPassword", registeredUser.getPassword());
-        assertEquals(Role.CUSTOMER, registeredUser.getRole());
-        verify(userRepository, times(1)).findByUsername(registerRequestCustomer.getUsername());
-        verify(passwordEncoder, times(1)).encode(registerRequestCustomer.getPassword());
+        User result = authService.registerCustomer(request);
+
+        assertThat(result).isNotNull();
+        verify(userRepository, times(1)).findByUsername("newuser@example.com");
+        verify(passwordEncoder, times(1)).encode("password123");
         verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void registerCustomer_shouldThrowRuntimeException_whenUserAlreadyExists() {
-        when(userRepository.findByUsername(registerRequestCustomer.getUsername())).thenReturn(Optional.of(customerUser));
+    void registerCustomer_shouldThrowException_whenUsernameAlreadyExists() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("existing@example.com");
+        request.setPassword("password123");
 
-        assertThrows(RuntimeException.class, () -> authService.registerCustomer(registerRequestCustomer));
-        verify(userRepository, times(1)).findByUsername(registerRequestCustomer.getUsername());
-        verify(passwordEncoder, never()).encode(anyString());
+        when(userRepository.findByUsername("existing@example.com")).thenReturn(Optional.of(testUser));
+
+        assertThatThrownBy(() -> authService.registerCustomer(request))
+                .isInstanceOf(UserAlreadyExistsException.class)
+                .hasMessageContaining("User with this username already exists");
+
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void registerAdmin_shouldCreateNewAdminUser_whenUserDoesNotExist() {
-        when(userRepository.findByUsername(registerRequestAdmin.getUsername())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(registerRequestAdmin.getPassword())).thenReturn("encodedAdminPass");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User savedUser = invocation.getArgument(0);
-            savedUser.setId(2L);
-            return savedUser;
-        });
+    void registerAdmin_shouldRegisterNewAdmin_whenUsernameNotExists() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("admin@example.com");
+        request.setPassword("adminpass");
 
-        User registeredUser = authService.registerAdmin(registerRequestAdmin);
+        User admin = new User();
+        admin.setUsername("admin@example.com");
+        admin.setRole(Role.ADMIN);
 
-        assertNotNull(registeredUser);
-        assertEquals(registerRequestAdmin.getUsername(), registeredUser.getUsername());
-        assertEquals("encodedAdminPass", registeredUser.getPassword());
-        assertEquals(Role.ADMIN, registeredUser.getRole());
-        verify(userRepository, times(1)).findByUsername(registerRequestAdmin.getUsername());
-        verify(passwordEncoder, times(1)).encode(registerRequestAdmin.getPassword());
+        when(userRepository.findByUsername("admin@example.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("adminpass")).thenReturn("encodedAdminPassword");
+        when(userRepository.save(any(User.class))).thenReturn(admin);
+
+        User result = authService.registerAdmin(request);
+
+        assertThat(result).isNotNull();
+        verify(passwordEncoder, times(1)).encode("adminpass");
         verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void login_shouldReturnUser_whenCredentialsAreValid() {
-        when(userRepository.findByUsername(loginRequest.getUsername())).thenReturn(Optional.of(customerUser));
-        when(passwordEncoder.matches(loginRequest.getPassword(), customerUser.getPassword())).thenReturn(true);
+    void registerAdmin_shouldThrowException_whenUsernameAlreadyExists() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("existing@example.com");
 
-        User loggedInUser = authService.login(loginRequest);
+        when(userRepository.findByUsername("existing@example.com")).thenReturn(Optional.of(testUser));
 
-        assertNotNull(loggedInUser);
-        assertEquals(customerUser.getUsername(), loggedInUser.getUsername());
-        verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
-        verify(passwordEncoder, times(1)).matches(loginRequest.getPassword(), customerUser.getPassword());
+        assertThatThrownBy(() -> authService.registerAdmin(request))
+                .isInstanceOf(UserAlreadyExistsException.class)
+                .hasMessageContaining("User with this username already exists");
     }
 
     @Test
-    void login_shouldThrowResourceNotFoundException_whenUserNotFound() {
-        when(userRepository.findByUsername(loginRequest.getUsername())).thenReturn(Optional.empty());
+    void login_shouldReturnUser_whenCredentialsAreValid() {
+        LoginRequest request = new LoginRequest();
+        request.setUsername("test@example.com");
+        request.setPassword("password123");
 
-        assertThrows(ResourceNotFoundException.class, () -> authService.login(loginRequest));
-        verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
+        when(userRepository.findByUsername("test@example.com")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
+
+        User result = authService.login(request);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getUsername()).isEqualTo("test@example.com");
+        verify(userRepository, times(1)).findByUsername("test@example.com");
+        verify(passwordEncoder, times(1)).matches("password123", "encodedPassword");
+    }
+
+    @Test
+    void login_shouldThrowException_whenUserNotFound() {
+        LoginRequest request = new LoginRequest();
+        request.setUsername("nonexistent@example.com");
+        request.setPassword("password123");
+
+        when(userRepository.findByUsername("nonexistent@example.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.login(request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("User not found with username");
+
         verify(passwordEncoder, never()).matches(anyString(), anyString());
     }
 
     @Test
-    void login_shouldThrowRuntimeException_whenInvalidPassword() {
-        when(userRepository.findByUsername(loginRequest.getUsername())).thenReturn(Optional.of(customerUser));
-        when(passwordEncoder.matches(loginRequest.getPassword(), customerUser.getPassword())).thenReturn(false);
+    void login_shouldThrowException_whenPasswordIsInvalid() {
+        LoginRequest request = new LoginRequest();
+        request.setUsername("test@example.com");
+        request.setPassword("wrongpassword");
 
-        assertThrows(RuntimeException.class, () -> authService.login(loginRequest));
-        verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
-        verify(passwordEncoder, times(1)).matches(loginRequest.getPassword(), customerUser.getPassword());
+        when(userRepository.findByUsername("test@example.com")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("wrongpassword", "encodedPassword")).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.login(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessageContaining("Invalid password");
+
+        verify(userRepository, times(1)).findByUsername("test@example.com");
+        verify(passwordEncoder, times(1)).matches("wrongpassword", "encodedPassword");
     }
 }

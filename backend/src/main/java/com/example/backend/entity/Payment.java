@@ -1,6 +1,7 @@
 package com.example.backend.entity;
 
 import com.example.backend.model.PaymentStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ public class Payment {
 
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonIgnoreProperties({"payment", "orderItems", "customer"})
     private Order order;
 
     private Double amount;
