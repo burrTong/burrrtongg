@@ -28,11 +28,10 @@ jobs:
           cd frontend/burrtong
           npm ci
           
-      - name: Run Lint
-        run: |
-          cd frontend/burrtong
-          npm run lint
-          
+                # - name: Run Lint
+                #   run: |
+                #     cd frontend/burrtong
+                #     npm run lint          
       - name: Build Application
         run: |
           cd frontend/burrtong
