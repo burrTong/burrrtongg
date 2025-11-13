@@ -3,8 +3,14 @@ name: Backend CI/CD
 on:
   push:
     branches: [ main, develop, 'feature/ci-cd-pipelines' ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
 
 jobs:
   test:
@@ -43,6 +49,7 @@ jobs:
         run: chmod +x backend/gradlew
         
       - name: Run Tests
+        id: run_tests
         run: |
           cd backend
           ./gradlew test --info
@@ -51,7 +58,7 @@ jobs:
           
       - name: Generate Test Report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: steps.run_tests.outcome == 'success' || steps.run_tests.outcome == 'failure'
         with:
           name: Backend Test Results
           path: backend/build/test-results/test/*.xml

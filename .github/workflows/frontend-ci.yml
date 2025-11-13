@@ -3,8 +3,14 @@ name: Frontend CI/CD
 on:
   push:
     branches: [ main, develop, 'feature/ci-cd-pipelines' ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
 
 jobs:
   test:
@@ -65,13 +71,55 @@ jobs:
     
           
     
-          - name: Wait for Backend
+                - name: Wait for Backend
     
-            run: |
+          
     
-              echo "Waiting for backend to start..."
+                  run: |
     
-              sleep 60
+          
+    
+                    echo "Waiting for backend to start..."
+    
+          
+    
+                    timeout=120
+    
+          
+    
+                    while ! curl -s "http://localhost:8080/actuator/health" | grep -q '"status":"UP"'; do
+    
+          
+    
+                      if [ $timeout -le 0 ]; then
+    
+          
+    
+                        echo "Timed out waiting for backend to start."
+    
+          
+    
+                        exit 1
+    
+          
+    
+                      fi
+    
+          
+    
+                      sleep 5
+    
+          
+    
+                      timeout=$((timeout-5))
+    
+          
+    
+                    done
+    
+          
+    
+                    echo "Backend is up and running!"
     
               
     
