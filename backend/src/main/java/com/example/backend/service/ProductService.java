@@ -12,6 +12,8 @@ import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.elasticsearch.ProductDocument;
 import com.example.elasticsearch.service.ProductSearchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
@@ -21,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import java.util.stream.StreamSupport;
 @Service
 public class ProductService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -46,13 +48,16 @@ public class ProductService {
         // Ensure upload directory exists
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
+            log.info("Upload directory created/verified: {}", UPLOAD_DIR);
         } catch (IOException e) {
+            log.error("Failed to create upload directory: {}", UPLOAD_DIR, e);
             throw new RuntimeException("Could not create upload directory!", e);
         }
     }
 
     @PostConstruct
     public void indexProducts() {
+        log.info("Indexing all products to Elasticsearch...");
         List<Product> products = productRepository.findAll();
         for (Product product : products) {
             ProductDocument productDocument = new ProductDocument();
@@ -61,6 +66,7 @@ public class ProductService {
             productDocument.setDescription(product.getDescription());
             productSearchService.saveProduct(productDocument);
         }
+        log.info("Indexed {} products to Elasticsearch", products.size());
     }
 
     public List<Product> getAllProducts() {
@@ -87,6 +93,7 @@ public class ProductService {
     }
 
     public Product createProduct(ProductRequest productRequest, MultipartFile imageFile) {
+        log.info("Creating product: {}", productRequest.getName());
         Product product = new Product();
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
@@ -101,8 +108,9 @@ public class ProductService {
                 Path filePath = Paths.get(UPLOAD_DIR, fileName);
                 Files.copy(imageFile.getInputStream(), filePath);
                 product.setImageUrl("/" + UPLOAD_DIR + "/" + fileName); // Store relative path
+                log.info("Image uploaded successfully: {}", fileName);
             } catch (IOException e) {
-                System.err.println("Failed to store image file: " + e.getMessage());
+                log.error("Failed to store image file: {}", imageFile.getOriginalFilename(), e);
                 throw new RuntimeException("Failed to store image file", e);
             }
         } else if (productRequest.getImageUrl() != null && !productRequest.getImageUrl().isEmpty()) {
@@ -116,6 +124,7 @@ public class ProductService {
             Category category = categoryRepository.findById(productRequest.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + productRequest.getCategoryId()));
             product.setCategory(category);
+            log.info("Product assigned to category: {}", category.getName());
         }
 
         // Temporarily find an admin user to set as seller
@@ -124,17 +133,20 @@ public class ProductService {
         product.setSeller(seller);
 
         Product savedProduct = productRepository.save(product);
+        log.info("Product created successfully with id: {}", savedProduct.getId());
 
         ProductDocument productDocument = new ProductDocument();
         productDocument.setId(savedProduct.getId().toString());
         productDocument.setName(savedProduct.getName());
         productDocument.setDescription(savedProduct.getDescription());
         productSearchService.saveProduct(productDocument);
+        log.info("Product indexed to Elasticsearch: {}", savedProduct.getId());
 
         return savedProduct;
     }
 
     public Product updateProduct(Long id, ProductRequest productRequest, MultipartFile imageFile) {
+        log.info("Updating product id: {}", id);
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
 
@@ -151,8 +163,9 @@ public class ProductService {
                 Path filePath = Paths.get(UPLOAD_DIR, fileName);
                 Files.copy(imageFile.getInputStream(), filePath);
                 product.setImageUrl("/" + UPLOAD_DIR + "/" + fileName); // Store relative path
+                log.info("Product image updated: {}", fileName);
             } catch (IOException e) {
-                System.err.println("Failed to store image file: " + e.getMessage());
+                log.error("Failed to update product image", e);
                 throw new RuntimeException("Failed to store image file", e);
             }
         }
@@ -165,6 +178,7 @@ public class ProductService {
         }
 
         Product savedProduct = productRepository.save(product);
+        log.info("Product id: {} updated successfully", id);
 
         ProductDocument productDocument = new ProductDocument();
         productDocument.setId(savedProduct.getId().toString());
@@ -177,15 +191,20 @@ public class ProductService {
 
     // @PreAuthorize("@productService.isOwner(#id, principal.username) or hasAuthority('ADMIN')") // Commented out
     public void deleteProduct(Long id) {
+        log.info("Deleting product id: {}", id);
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
 
         // Delete associated order items first
         List<OrderItem> orderItems = orderItemRepository.findByProduct(product);
-        orderItemRepository.deleteAll(orderItems);
+        if (!orderItems.isEmpty()) {
+            log.info("Deleting {} order items associated with product id: {}", orderItems.size(), id);
+            orderItemRepository.deleteAll(orderItems);
+        }
 
         productRepository.delete(product); // Delete the product
         productSearchService.deleteProduct(id.toString());
+        log.info("Product id: {} deleted successfully", id);
     }
 
     public boolean isOwner(Long productId, String username) {

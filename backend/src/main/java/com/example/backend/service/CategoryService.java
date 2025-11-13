@@ -3,14 +3,16 @@ package com.example.backend.service;
 import com.example.backend.entity.Category;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.CategoryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoryService {
 
+    private static final Logger log = LoggerFactory.getLogger(CategoryService.class);
     private final CategoryRepository categoryRepository;
 
     public CategoryService(CategoryRepository categoryRepository) {
@@ -18,30 +20,49 @@ public class CategoryService {
     }
 
     public List<Category> getAllCategories() {
+        log.info("Fetching all categories from database");
         return categoryRepository.findAll();
     }
 
     public Category getCategoryById(Long id) {
+        log.info("Fetching category by id: {}", id);
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
+                .orElseThrow(() -> {
+                    log.warn("Category not found with id: {}", id);
+                    return new ResourceNotFoundException("Category not found with id " + id);
+                });
     }
 
     public Category createCategory(Category category) {
-        return categoryRepository.save(category);
+        log.info("Creating category: {}", category.getName());
+        Category saved = categoryRepository.save(category);
+        log.info("Category created successfully with id: {}", saved.getId());
+        return saved;
     }
 
     public Category updateCategory(Long id, Category categoryDetails) {
+        log.info("Updating category id: {}", id);
         return categoryRepository.findById(id)
                 .map(category -> {
                     category.setName(categoryDetails.getName());
-                    return categoryRepository.save(category);
+                    Category saved = categoryRepository.save(category);
+                    log.info("Category id: {} updated successfully", id);
+                    return saved;
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
+                .orElseThrow(() -> {
+                    log.warn("Category not found for update with id: {}", id);
+                    return new ResourceNotFoundException("Category not found with id " + id);
+                });
     }
 
     public void deleteCategory(Long id) {
+        log.info("Deleting category id: {}", id);
         categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
+                .orElseThrow(() -> {
+                    log.warn("Category not found for deletion with id: {}", id);
+                    return new ResourceNotFoundException("Category not found with id " + id);
+                });
         categoryRepository.deleteById(id);
+        log.info("Category id: {} deleted successfully", id);
     }
 }

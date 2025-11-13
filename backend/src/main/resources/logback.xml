@@ -6,11 +6,39 @@
         </encoder>
     </appender>
 
+    <!-- Root logger - default level -->
     <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="com.example.backend.service.OrderService" level="info" additivity="false">
+    <!-- Application loggers -->
+    <logger name="com.example.backend.controller" level="info" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="com.example.backend.service" level="info" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="com.example.backend.exception" level="warn" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <!-- Hibernate/JPA SQL logging (if needed for debugging) -->
+    <logger name="org.hibernate.SQL" level="debug" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="trace" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <!-- Spring framework logging -->
+    <logger name="org.springframework.web" level="info" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="org.springframework.security" level="info" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 </configuration>
