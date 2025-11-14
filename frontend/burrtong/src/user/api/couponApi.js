@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://muict.app/burrrtongg-backend';
 
 // Fetch active coupons for customers (public endpoint)
 export const getActiveCoupons = async () => {

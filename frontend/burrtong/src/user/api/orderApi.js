@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://muict.app/burrrtongg-backend';
 
 export const createOrder = async (orderRequest) => {
   const response = await fetch(`${API_BASE_URL}/api/orders`, {

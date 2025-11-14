@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '../api/productApi.js';
 import '../css/ProductDetail.css';
 
-const API_BASE_URL = 'http://localhost:8080'; // Define API base URL
+const API_BASE_URL = 'https://muict.app/burrrtongg-backend'; // Define API base URL
 
 const ProductDetail = () => {
   const { productId } = useParams();

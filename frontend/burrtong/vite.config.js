@@ -7,8 +7,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'https://muict.app/burrrtongg-backend',
         changeOrigin: true,
+        secure: true,
         // rewrite: (path) => path.replace(/^\/api/, ''), // <- ลบบรรทัดนี้ออก
       },
     },

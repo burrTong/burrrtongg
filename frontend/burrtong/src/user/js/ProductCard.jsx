@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../css/ProductCard.css'; // Corrected path
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://muict.app/burrrtongg-backend';
 
 const ProductCard = ({ product }) => {
   return (

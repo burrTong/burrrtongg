@@ -15,7 +15,7 @@ import BurtongLogo from '../../assets/Burtong_logo.png';
 
 
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://muict.app/burrrtongg-backend';
 
 
 

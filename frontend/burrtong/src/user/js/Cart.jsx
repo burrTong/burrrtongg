@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Product from '../models/product.js';
 import { createOrder, getCouponByCode } from '../api/orderApi.js';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://muict.app/burrrtongg-backend';
 
 const TrashIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
