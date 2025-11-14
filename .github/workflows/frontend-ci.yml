@@ -48,8 +48,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x backend/gradlew
 
+      - name: Build Backend
+        run: |
+          cd backend
+          ./gradlew build -x test
+
       - name: Start Backend
-        run: cd backend && ./gradlew bootRun > ../backend.log 2>&1 &
+        run: java -jar backend/build/libs/backend-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/burrtong_test
           SPRING_DATASOURCE_USERNAME: postgres
