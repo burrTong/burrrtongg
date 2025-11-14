@@ -59,15 +59,11 @@ jobs:
     
     
     
-          - name: Start Backend
+                - name: Start Backend
     
-            run: |
     
-              cd backend
     
-              ./gradlew bootRun &
-    
-              cd ../
+                  run: cd backend && ./gradlew bootRun &
     
           
     
