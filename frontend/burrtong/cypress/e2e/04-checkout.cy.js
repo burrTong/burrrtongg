@@ -49,6 +49,9 @@ describe('Checkout Process', () => {
 
     // Go to cart page to checkout
     cy.visit('http://localhost:5173/home/cart');
+    // DEBUG: Take a screenshot to see what the page looks like
+    cy.screenshot('before-checkout-item-check');
+    cy.debug();
     // Wait for the item to appear in the cart to ensure the checkout button is enabled
     cy.get('.cart-item', { timeout: 10000 }).should('be.visible');
 

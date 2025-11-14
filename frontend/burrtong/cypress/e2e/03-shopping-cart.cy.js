@@ -178,6 +178,9 @@ describe('Shopping Cart', () => {
             cy.wait(500);
             // Go back to cart to see the item and remove it
             cy.visit('http://localhost:5173/home/cart');
+            // DEBUG: Take a screenshot to see what the page looks like
+            cy.screenshot('before-cart-item-check');
+            cy.debug();
             // Wait for the item to appear in the cart before trying to remove it
             cy.get('.cart-item', { timeout: 10000 }).should('be.visible');
             // Now remove it
