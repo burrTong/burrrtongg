@@ -175,6 +175,9 @@ describe('Shopping Cart', () => {
         cy.get('body').then(($body2) => {
           if ($body2.find('button.add-to-cart:not([disabled])').length > 0) {
             cy.get('button.add-to-cart').click();
+            cy.wait(500);
+            // Go back to cart to see the item and remove it
+            cy.visit('http://localhost:5173/home/cart');
             cy.wait(1000); // Wait for cart to load
             // Now remove it - wait for button to appear
             cy.get('.remove-item-btn', { timeout: 10000 }).first().click();

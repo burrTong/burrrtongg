@@ -43,9 +43,13 @@ describe('Checkout Process', () => {
     cy.get('body').then(($body) => {
       if ($body.find('button.add-to-cart:not([disabled])').length > 0) {
         cy.get('button.add-to-cart').click();
-        cy.wait(1000);
+        cy.wait(500);
       }
     });
+
+    // Go to cart page to checkout
+    cy.visit('http://localhost:5173/home/cart');
+    cy.wait(1000);
 
     // Click checkout button
     cy.get('.checkout-button').should('exist').should('not.be.disabled').click();
