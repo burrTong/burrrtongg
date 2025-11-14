@@ -9,6 +9,9 @@ describe('Checkout Process', () => {
     cy.wait(1000);
     cy.get('input[type="email"]').type(customerEmail);
     cy.get('input[name="password"]').type(password);
+    cy.wait(500);
+    
+    // Find available product
     cy.get('input[name="confirmPassword"]').type(password);
     cy.contains('button', 'Sign up').click();
     cy.wait(1000);
@@ -40,10 +43,15 @@ describe('Checkout Process', () => {
     cy.wait(500);
     
     // Add to cart
+    cy.wait(500);
+    
+    // Add to cart
     cy.get('body').then(($body) => {
       if ($body.find('button.add-to-cart:not([disabled])').length > 0) {
         cy.get('button.add-to-cart').click();
         cy.wait(500);
+        // Ensure the cart was recorded in localStorage before visiting the cart page
+        cy.window().its('localStorage').invoke('getItem', 'cart').should('not.be.null');
       }
     });
 

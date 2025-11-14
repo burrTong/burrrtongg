@@ -173,9 +173,11 @@ describe('Shopping Cart', () => {
         });
         cy.wait(500);
         cy.get('body').then(($body2) => {
-          if ($body2.find('button.add-to-cart:not([disabled])').length > 0) {
+            if ($body2.find('button.add-to-cart:not([disabled])').length > 0) {
             cy.get('button.add-to-cart').click();
             cy.wait(500);
+            // Ensure the cart was recorded in localStorage before visiting the cart page
+            cy.window().its('localStorage').invoke('getItem', 'cart').should('not.be.null');
             // Go back to cart to see the item and remove it
             cy.visit('http://localhost:5173/home/cart');
             // DEBUG: Take a screenshot to see what the page looks like
