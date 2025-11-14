@@ -178,9 +178,10 @@ describe('Shopping Cart', () => {
             cy.wait(500);
             // Go back to cart to see the item and remove it
             cy.visit('http://localhost:5173/home/cart');
-            cy.wait(1000); // Wait for cart to load
-            // Now remove it - wait for button to appear
-            cy.get('.remove-item-btn', { timeout: 10000 }).first().click();
+            // Wait for the item to appear in the cart before trying to remove it
+            cy.get('.cart-item', { timeout: 10000 }).should('be.visible');
+            // Now remove it
+            cy.get('.remove-item-btn').first().click();
             cy.wait(500);
             // Verify cart is empty
             cy.get('body').should('contain.text', 'Your cart is empty');
