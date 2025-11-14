@@ -49,16 +49,17 @@ jobs:
         run: chmod +x backend/gradlew
 
       - name: Start Backend
-        run: cd backend && ./gradlew bootRun &
+        run: cd backend && ./gradlew bootRun > ../backend.log 2>&1 &
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/burrtong_test
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: postgres
 
       - name: Wait for Backend
+        id: wait_for_backend
         run: |
           echo "Waiting for backend to start..."
-          timeout=120
+          timeout=60
           while ! curl -s "http://localhost:8080/actuator/health" | grep -q '"status":"UP"'; do
             if [ $timeout -le 0 ]; then
               echo "Timed out waiting for backend to start."
@@ -68,6 +69,12 @@ jobs:
             timeout=$((timeout-5))
           done
           echo "Backend is up and running!"
+
+      - name: Print Backend Logs on Failure
+        if: steps.wait_for_backend.outcome == 'failure'
+        run: |
+          echo "Backend failed to start. Printing logs:"
+          cat backend.log
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
