@@ -48,31 +48,17 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x backend/gradlew
 
-      - name: Build Backend
+      - name: Build and Attempt to Run Backend (Debug)
         run: |
+          echo "Building backend JAR..."
           cd backend
           ./gradlew build -x test
-
-      - name: Start Backend
-        run: java -jar backend/build/libs/backend-0.0.1-SNAPSHOT.jar &
+          echo "Attempting to run backend JAR in foreground..."
+          java -jar build/libs/backend-0.0.1-SNAPSHOT.jar
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/burrtong_test
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: postgres
-
-      - name: Wait for Backend
-        run: |
-          echo "Waiting for backend to start..."
-          timeout=60
-          while ! curl -s "http://localhost:8080/actuator/health" | grep -q '"status":"UP"'; do
-            if [ $timeout -le 0 ]; then
-              echo "Timed out waiting for backend to start."
-              exit 1
-            fi
-            sleep 5
-            timeout=$((timeout-5))
-          done
-          echo "Backend is up and running!"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
