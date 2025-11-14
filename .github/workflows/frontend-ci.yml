@@ -50,6 +50,10 @@ jobs:
 
       - name: Start Backend
         run: cd backend && ./gradlew bootRun &
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/burrtong_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
 
       - name: Wait for Backend
         run: |
