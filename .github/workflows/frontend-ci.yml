@@ -71,7 +71,7 @@ jobs:
           echo "Backend is up and running!"
 
       - name: Print Backend Logs on Failure
-        if: steps.wait_for_backend.outcome == 'failure'
+        if: failure()
         run: |
           echo "Backend failed to start. Printing logs:"
           cat backend.log
