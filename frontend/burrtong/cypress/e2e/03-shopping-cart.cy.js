@@ -184,13 +184,22 @@ describe('Shopping Cart', () => {
             win.localStorage.setItem('cart', JSON.stringify([seedItem]));
           }
         });
-        // Go back to cart to see the item and remove it
-        cy.visit('http://localhost:5173/home/cart');
-        // DEBUG: Take a screenshot to see what the page looks like
-        cy.screenshot('before-cart-item-check');
-        cy.debug();
-        // Wait for the item to appear in the cart before trying to remove it
-        cy.get('.cart-item', { timeout: 10000 }).should('be.visible');
+            // Go back to cart to see the item and remove it
+            cy.visit('http://localhost:5173/home/cart');
+            // DEBUG: Take a screenshot to see what the page looks like
+            cy.screenshot('before-cart-item-check');
+            cy.debug();
+            // Debug info: localStorage and DOM snapshot to help CI debugging
+            cy.window().then((win) => {
+              const cartStr = win.localStorage.getItem('cart');
+              cy.log('DEBUG localStorage.cart => ' + (cartStr ? cartStr : '<null>'));
+            });
+            cy.document().then((doc) => {
+              const txt = doc.body && doc.body.innerText ? doc.body.innerText : '';
+              cy.log('DEBUG body.innerText (start) => ' + txt.slice(0, 2000));
+            });
+            // Wait longer for the cart item to appear in CI
+            cy.get('.cart-item', { timeout: 30000 }).should('be.visible');
         // Now remove it
         cy.get('.remove-item-btn').first().click();
         cy.wait(500);

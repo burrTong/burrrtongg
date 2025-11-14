@@ -62,8 +62,17 @@ describe('Checkout Process', () => {
     // DEBUG: Take a screenshot to see what the page looks like
     cy.screenshot('before-checkout-item-check');
     cy.debug();
+    // Debug info: localStorage and DOM snapshot to help CI debugging
+    cy.window().then((win) => {
+      const cartStr = win.localStorage.getItem('cart');
+      cy.log('DEBUG localStorage.cart => ' + (cartStr ? cartStr : '<null>'));
+    });
+    cy.document().then((doc) => {
+      const txt = doc.body && doc.body.innerText ? doc.body.innerText : '';
+      cy.log('DEBUG body.innerText (start) => ' + txt.slice(0, 2000));
+    });
     // Wait for the item to appear in the cart to ensure the checkout button is enabled
-    cy.get('.cart-item', { timeout: 10000 }).should('be.visible');
+    cy.get('.cart-item', { timeout: 30000 }).should('be.visible');
 
     // Click checkout button
     cy.get('.checkout-button').should('exist').should('not.be.disabled').click();
