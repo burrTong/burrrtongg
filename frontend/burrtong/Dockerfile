@@ -1,14 +1,18 @@
-# Stage 1: Build the React application
-FROM node:20-alpine as builder
+# ---------- Stage 1: Build frontend (Vite) ----------
+FROM node:18-alpine AS build
+
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve the application using Nginx
-FROM nginx:stable-alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+# ---------- Stage 2: Nginx serve static files ----------
+FROM nginx:alpine
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=build /app/dist /usr/share/nginx/html/burrrtongg-frontend
+RUN chmod -R 755 /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
