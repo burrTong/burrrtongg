@@ -19,7 +19,7 @@ function AvailableCoupons() {
       // แสดงเฉพาะ coupons ที่ active และยังไม่หมดอายุ
       const activeCoupons = data.filter(coupon => 
         coupon.isActive && 
-        (!coupon.expiryDate || new Date(coupon.expiryDate) > new Date()) &&
+        (!coupon.expirationDate || new Date(coupon.expirationDate) > new Date()) &&
         (coupon.maxUses === null || coupon.timesUsed < coupon.maxUses)
       );
       setCoupons(activeCoupons);
@@ -52,7 +52,10 @@ function AvailableCoupons() {
       // ถ้าไม่มีวันหมดอายุ ให้แสดงวันที่ไกลๆ ในอนาคต
       const futureDate = new Date();
       futureDate.setFullYear(futureDate.getFullYear() + 10); // เพิ่ม 10 ปี
-      return `Expires: ${futureDate.toLocaleDateString()}`;
+      const day = futureDate.getDate().toString().padStart(2, '0');
+      const month = (futureDate.getMonth() + 1).toString().padStart(2, '0');
+      const year = futureDate.getFullYear() + 543; // แปลงเป็น พ.ศ.
+      return `Expires: ${day}/${month}/${year}`;
     }
     
     const expiry = new Date(expiryDate);
@@ -64,8 +67,11 @@ function AvailableCoupons() {
     if (diffDays === 1) return "Expires today";
     if (diffDays <= 7) return `Expires in ${diffDays} days`;
     
-    // แสดงวันที่หมดอายุ
-    return `Expires: ${expiry.toLocaleDateString()}`;
+    // แสดงวันที่หมดอายุในรูปแบบ DD/MM/YYYY (พ.ศ.)
+    const day = expiry.getDate().toString().padStart(2, '0');
+    const month = (expiry.getMonth() + 1).toString().padStart(2, '0');
+    const year = expiry.getFullYear() + 543; // แปลงเป็น พ.ศ.
+    return `Expires: ${day}/${month}/${year}`;
   };
 
   if (loading) {
@@ -137,7 +143,7 @@ function AvailableCoupons() {
                 
                 <div className="coupon-footer">
                   <span className="expiry-text">
-                    {getExpiryText(coupon.expiryDate)}
+                    {getExpiryText(coupon.expirationDate)}
                   </span>
                   {coupon.minOrderAmount > 0 && (
                     <span className="min-order">
