@@ -3,7 +3,7 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [ main, develop, 'feature/ci-cd-pipelines' ]
+    branches: [ main, develop, 'feature/ci-cd-pipelines', 'newcicd' ]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
