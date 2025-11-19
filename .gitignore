@@ -1,1 +1,11 @@
 .env
+node_modules/
+build/
+.idea/
+uploads/
+backend/build/
+backend/test-debug.log
+backend/.gradle/
+frontend/burrtong/dist/
+frontend/burrtong/node_modules/
+*.log
