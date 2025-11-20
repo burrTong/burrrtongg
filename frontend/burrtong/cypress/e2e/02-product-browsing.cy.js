@@ -21,6 +21,18 @@ describe('Product Browsing', () => {
     cy.contains('THB').should('be.visible');
   });
 
+  it('should search for products using search bar', () => {
+    // Find and type in search input (usually in header/navbar)
+    cy.get('input[type="text"]').filter(':visible').first().type('niko{enter}');
+    cy.wait(1000);
+
+    // Should show search results
+    cy.get('.product-card').should('exist');
+    
+    // Product name should contain "nike" (case insensitive)
+    cy.get('.product-card').first().should('contain.text', 'Nike');
+  });
+
   it('should search for products', () => {
     // Navigate to products page which has search/filter
     cy.contains('Products').click();
