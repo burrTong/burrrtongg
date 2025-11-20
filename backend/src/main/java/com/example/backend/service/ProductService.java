@@ -37,7 +37,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final OrderItemRepository orderItemRepository; // New
     private final ProductSearchService productSearchService;
-    private final String UPLOAD_DIR = "uploads/images";
+    private final String UPLOAD_DIR = "/app/uploads/images";
 
     public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository, OrderItemRepository orderItemRepository, ProductSearchService productSearchService) {
         this.productRepository = productRepository;
@@ -107,7 +107,7 @@ public class ProductService {
                 String fileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
                 Path filePath = Paths.get(UPLOAD_DIR, fileName);
                 Files.copy(imageFile.getInputStream(), filePath);
-                product.setImageUrl("/" + UPLOAD_DIR + "/" + fileName); // Store relative path
+                product.setImageUrl("/uploads/images/" + fileName); // Store relative path for URL
                 log.info("Image uploaded successfully: {}", fileName);
             } catch (IOException e) {
                 log.error("Failed to store image file: {}", imageFile.getOriginalFilename(), e);
@@ -162,7 +162,7 @@ public class ProductService {
                 String fileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
                 Path filePath = Paths.get(UPLOAD_DIR, fileName);
                 Files.copy(imageFile.getInputStream(), filePath);
-                product.setImageUrl("/" + UPLOAD_DIR + "/" + fileName); // Store relative path
+                product.setImageUrl("/uploads/images/" + fileName); // Store relative path for URL
                 log.info("Product image updated: {}", fileName);
             } catch (IOException e) {
                 log.error("Failed to update product image", e);

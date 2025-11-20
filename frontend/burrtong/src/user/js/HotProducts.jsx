@@ -13,8 +13,9 @@ const HotProducts = ({ limit = 3 }) => {
     const fetch = async () => {
       try {
         const list = await getAllProducts();
-        // เลือก top-N เป็น hot ชั่วคราว (ปรับ logic ได้ภายหลัง เช่นตามยอดขาย/สถานะ)
-        setProducts(list.slice(0, limit));
+        // เรียงตามราคาจากมากไปน้อย แล้วเลือก N ตัวแรก
+        const sortedByPrice = list.sort((a, b) => b.price - a.price);
+        setProducts(sortedByPrice.slice(0, limit));
       } catch (e) {
         console.error("Failed to fetch hot products:", e);
       } finally {
