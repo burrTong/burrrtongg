@@ -1,27 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: burrrtongg-frontend-service
+  namespace: burrrtongg-app
+spec:
+  selector:
+    app: burrrtongg-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: burrrtongg-frontend-deployment
+  namespace: burrrtongg-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: burrrtongg-frontend
   template:
     metadata:
       labels:
-        app: frontend
+        app: burrrtongg-frontend
     spec:
       containers:
-        - name: frontend
-          # IMPORTANT: This image must be available in a registry that your Kubernetes cluster can access.
-          # Replace DOCKERHUB_USERNAME with your Docker Hub username.
-          image: phruek07/burrrtongg-frontend:latest
+        - name: burrrtongg-frontend
+          image: chitipatpangma/burrrtongg-fe:fix10
           ports:
             - containerPort: 80
-          # You might need to configure the frontend to point to the backend service.
-          # This could be done via environment variables or a config file.
-          # For example, you could set an environment variable like:
           # env:
-          # - name: REACT_APP_API_URL
-          #   value: "http://backend-service"
+
+            # ------------------------------------------------------
+            # Option: 1 — ถ้า frontend ใช้ env API
+            # ให้ uncomment ตัวนี้ แล้วแก้เป็น path ของกลุ่มตามนี้
+            # ------------------------------------------------------
+            # - name: NEXT_PUBLIC_API_URL
+            #   value: "https://muict.app/<group-name>-backend"
+
+            # - name: VITE_API_URL
+              #  value: "https://muict.app/burrrtongg-backend"
+
+        
+
+
+
