@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -37,7 +37,7 @@ class CouponControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private CouponService couponService;
 
     private Coupon testCoupon;
@@ -94,5 +94,36 @@ class CouponControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.code").value("SAVE10"));
+    }
+
+    @Test
+    void getCouponByCode_shouldReturnCoupon() throws Exception {
+        when(couponService.getCouponByCode("SAVE10")).thenReturn(testCoupon);
+
+        mockMvc.perform(get("/api/coupons/SAVE10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SAVE10"))
+                .andExpect(jsonPath("$.discountValue").value(10));
+    }
+
+    @Test
+    void updateCoupon_shouldReturnUpdatedCoupon() throws Exception {
+        Coupon updatedCoupon = new Coupon();
+        updatedCoupon.setCode("SAVE15");
+        updatedCoupon.setDiscountValue(BigDecimal.valueOf(15));
+
+        when(couponService.updateCoupon(any(Long.class), any(Coupon.class))).thenReturn(updatedCoupon);
+
+        mockMvc.perform(put("/api/coupons/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedCoupon)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SAVE15"));
+    }
+
+    @Test
+    void deleteCoupon_shouldReturnSuccessMessage() throws Exception {
+        mockMvc.perform(delete("/api/coupons/1"))
+                .andExpect(status().isOk());
     }
 }

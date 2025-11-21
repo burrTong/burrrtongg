@@ -30,9 +30,30 @@ class CustomerControllerTest {
     }
 
     @Test
+    void getCustomerById_shouldReturnMessage() throws Exception {
+        mockMvc.perform(get("/customers/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Customer with ID: 1"));
+    }
+
+    @Test
     void createCustomer_shouldReturnMessage() throws Exception {
         mockMvc.perform(post("/customers"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("New customer created"));
+    }
+
+    @Test
+    void updateCustomer_shouldReturnMessage() throws Exception {
+        mockMvc.perform(put("/customers/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Customer updated with ID: 1"));
+    }
+
+    @Test
+    void deleteCustomer_shouldReturnMessage() throws Exception {
+        mockMvc.perform(delete("/customers/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Customer deleted with ID: 1"));
     }
 }

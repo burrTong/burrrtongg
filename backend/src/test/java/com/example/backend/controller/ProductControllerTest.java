@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,7 +34,7 @@ class ProductControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private ProductService productService;
 
     private Product testProduct;
@@ -65,5 +65,42 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$[0].name").value("Test Product"))
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].name").value("Product 2"));
+    }
+
+    @Test
+    void getProductById_shouldReturnProduct() throws Exception {
+        when(productService.getProductById(1L)).thenReturn(testProduct);
+
+        mockMvc.perform(get("/api/products/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Test Product"))
+                .andExpect(jsonPath("$.price").value(99.99));
+    }
+
+    @Test
+    void searchProducts_shouldReturnMatchingProducts() throws Exception {
+        List<Product> products = Arrays.asList(testProduct);
+        when(productService.searchProducts("Test")).thenReturn(products);
+
+        mockMvc.perform(get("/api/products/search").param("name", "Test"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Test Product"));
+    }
+
+    @Test
+    void getProductsByCategory_shouldReturnProducts() throws Exception {
+        List<Product> products = Arrays.asList(testProduct);
+        when(productService.getProductsByCategory(1L)).thenReturn(products);
+
+        mockMvc.perform(get("/api/products/category/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    void deleteProduct_shouldReturnSuccessMessage() throws Exception {
+        mockMvc.perform(delete("/api/products/1"))
+                .andExpect(status().isOk());
     }
 }

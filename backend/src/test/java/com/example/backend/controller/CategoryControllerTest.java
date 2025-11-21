@@ -9,19 +9,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,7 +37,7 @@ public class CategoryControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private CategoryService categoryService;
 
     private Category testCategory;
@@ -48,64 +50,62 @@ public class CategoryControllerTest {
     }
 
     @Test
-    void testGetCategoryByIdWithDebug() throws Exception {
+    void getAllCategories_shouldReturnList() throws Exception {
+        Category category2 = new Category();
+        category2.setId(2L);
+        category2.setName("Books");
+
+        List<Category> categories = Arrays.asList(testCategory, category2);
+        when(categoryService.getAllCategories()).thenReturn(categories);
+
+        mockMvc.perform(get("/api/categories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Electronics"))
+                .andExpect(jsonPath("$[1].name").value("Books"));
+    }
+
+    @Test
+    void getCategoryById_shouldReturnCategory() throws Exception {
         when(categoryService.getCategoryById(1L)).thenReturn(testCategory);
 
-        MvcResult result = mockMvc.perform(get("/api/categories/1"))
-                .andDo(print())
-                .andReturn();
-
-        System.out.println("===== RESPONSE STATUS: " + result.getResponse().getStatus());
-        System.out.println("===== RESPONSE BODY: " + result.getResponse().getContentAsString());
-        System.out.println("===== RESPONSE ERROR: " + result.getResponse().getErrorMessage());
-        
-        if (result.getResolvedException() != null) {
-            System.out.println("===== EXCEPTION: " + result.getResolvedException().getClass().getName());
-            System.out.println("===== EXCEPTION MESSAGE: " + result.getResolvedException().getMessage());
-            result.getResolvedException().printStackTrace();
-        }
+        mockMvc.perform(get("/api/categories/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Electronics"));
     }
 
     @Test
-    void testUpdateCategoryWithDebug() throws Exception {
+    void createCategory_shouldReturnCreatedCategory() throws Exception {
+        when(categoryService.createCategory(any(Category.class))).thenReturn(testCategory);
+
+        mockMvc.perform(post("/api/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testCategory)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Electronics"));
+    }
+
+    @Test
+    void updateCategory_shouldReturnUpdatedCategory() throws Exception {
         Category updatedCategory = new Category();
+        updatedCategory.setId(1L);
         updatedCategory.setName("Updated Electronics");
 
-        when(categoryService.updateCategory(eq(1L), any(Category.class))).thenReturn(testCategory);
+        when(categoryService.updateCategory(eq(1L), any(Category.class))).thenReturn(updatedCategory);
 
-        MvcResult result = mockMvc.perform(put("/api/categories/1")
+        mockMvc.perform(put("/api/categories/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedCategory)))
-                .andDo(print())
-                .andReturn();
-
-        System.out.println("===== RESPONSE STATUS: " + result.getResponse().getStatus());
-        System.out.println("===== RESPONSE BODY: " + result.getResponse().getContentAsString());
-        System.out.println("===== RESPONSE ERROR: " + result.getResponse().getErrorMessage());
-        
-        if (result.getResolvedException() != null) {
-            System.out.println("===== EXCEPTION: " + result.getResolvedException().getClass().getName());
-            System.out.println("===== EXCEPTION MESSAGE: " + result.getResolvedException().getMessage());
-            result.getResolvedException().printStackTrace();
-        }
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Electronics"));
     }
 
     @Test
-    void testDeleteCategoryWithDebug() throws Exception {
+    void deleteCategory_shouldReturnSuccessMessage() throws Exception {
         doNothing().when(categoryService).deleteCategory(1L);
 
-        MvcResult result = mockMvc.perform(delete("/api/categories/1"))
-                .andDo(print())
-                .andReturn();
-
-        System.out.println("===== RESPONSE STATUS: " + result.getResponse().getStatus());
-        System.out.println("===== RESPONSE BODY: " + result.getResponse().getContentAsString());
-        System.out.println("===== RESPONSE ERROR: " + result.getResponse().getErrorMessage());
-        
-        if (result.getResolvedException() != null) {
-            System.out.println("===== EXCEPTION: " + result.getResolvedException().getClass().getName());
-            System.out.println("===== EXCEPTION MESSAGE: " + result.getResolvedException().getMessage());
-            result.getResolvedException().printStackTrace();
-        }
+        mockMvc.perform(delete("/api/categories/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Category deleted with id 1"));
     }
 }
